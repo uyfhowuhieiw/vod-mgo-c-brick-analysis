@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="冶炼超低不锈钢 VOD 钢包用低碳镁碳砖寿命仅 4 次，剥落严重。结论先行 + 配方反算 + 逐项变更评估 + 剥落机理 + 改进方案与上线排查清单。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="VOD 钢包低碳镁碳砖剥落原因分析与改进方案">
+<meta property="og:description" content="寿命仅 4 次的原因分析：配方核算、单斜氧化锆评估、VOD 工况匹配性、剥落机理与改进方案。">
+<meta name="theme-color" content="#0e1420">
+<title>冶炼超低不锈钢 VOD 钢包用低碳镁碳砖 剥落原因分析与改进方案</title>
+<style>
+  :root{
+    --bg:#0e1420;
+    --bg2:#151d2c;
+    --card:#1b2536;
+    --card2:#212d41;
+    --line:#2c3a52;
+    --txt:#e8edf5;
+    --txt2:#a9b6c9;
+    --txt3:#7c8ba1;
+    --acc:#ff8a3d;
+    --acc2:#ffb066;
+    --red:#ff5a5a;
+    --yel:#ffcc4d;
+    --grn:#3fd68a;
+    --blu:#4da3ff;
+    --pur:#a98bff;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:radial-gradient(1200px 800px at 15% -10%, #1b2740 0%, var(--bg) 55%) fixed;
+    color:var(--txt);
+    font-family:"Microsoft YaHei","PingFang SC","Segoe UI",system-ui,-apple-system,sans-serif;
+    line-height:1.75; font-size:15.5px;
+  }
+  .wrap{max-width:1180px; margin:0 auto; padding:36px 26px 90px;}
+
+  /* ============ HEADER ============ */
+  header{
+    border:1px solid var(--line); border-radius:18px; padding:30px 32px;
+    background:linear-gradient(135deg,#1d2a40 0%,#141c2b 60%,#1a1520 100%);
+    position:relative; overflow:hidden;
+  }
+  header:before{
+    content:""; position:absolute; right:-90px; top:-90px; width:300px; height:300px;
+    background:radial-gradient(circle,#ff8a3d33 0%,transparent 70%);
+  }
+  .tag{
+    display:inline-block; font-size:12.5px; letter-spacing:1.5px; color:var(--acc);
+    border:1px solid #ff8a3d55; background:#ff8a3d14; padding:4px 12px; border-radius:20px;
+    margin-bottom:14px;
+  }
+  h1{font-size:27px; margin:0 0 10px; line-height:1.4; letter-spacing:.3px;}
+  h1 span{color:var(--acc);}
+  .sub{color:var(--txt2); font-size:14.5px; margin:0;}
+  .badges{display:flex; flex-wrap:wrap; gap:10px; margin-top:20px;}
+  .badge{
+    background:#0f1725; border:1px solid var(--line); border-radius:10px;
+    padding:8px 13px; font-size:13px; color:var(--txt2);
+  }
+  .badge b{color:var(--txt); font-weight:600;}
+  .badge.bad b{color:var(--red);}
+  .badge.warn b{color:var(--yel);}
+
+  /* ============ SECTIONS ============ */
+  section{margin-top:34px;}
+  h2{
+    font-size:20px; margin:0 0 16px; padding-left:14px; position:relative;
+    border-bottom:1px solid var(--line); padding-bottom:11px;
+  }
+  h2:before{
+    content:""; position:absolute; left:0; top:3px; width:5px; height:20px;
+    background:linear-gradient(180deg,var(--acc),#ff5a5a); border-radius:3px;
+  }
+  h2 em{font-style:normal; color:var(--txt3); font-size:13px; font-weight:400; margin-left:10px;}
+  h3{font-size:16px; margin:0 0 8px; color:var(--acc2);}
+
+  .card{
+    background:linear-gradient(180deg,var(--card) 0%,#182131 100%);
+    border:1px solid var(--line); border-radius:14px; padding:20px 22px;
+  }
+  .grid{display:grid; gap:16px;}
+  .g2{grid-template-columns:repeat(auto-fit,minmax(330px,1fr));}
+  .g3{grid-template-columns:repeat(auto-fit,minmax(250px,1fr));}
+
+  /* ============ CONCLUSION ============ */
+  .verdict{
+    border:1px solid #ff5a5a55; background:linear-gradient(135deg,#2a1a20,#1b2333);
+    border-radius:14px; padding:22px 24px;
+  }
+  .verdict h3{color:var(--red); font-size:17px;}
+  .verdict ol{margin:10px 0 0; padding-left:22px;}
+  .verdict li{margin-bottom:9px; color:var(--txt2);}
+  .verdict li b{color:var(--txt);}
+  .hl{color:var(--acc2); font-weight:600;}
+
+  /* ============ TABLE ============ */
+  table{width:100%; border-collapse:collapse; font-size:14px; margin-top:6px;}
+  caption{caption-side:top; text-align:left; color:var(--txt3); font-size:13px; padding-bottom:8px;}
+  th,td{padding:9px 11px; border-bottom:1px solid #26324a; text-align:left; vertical-align:top;}
+  th{background:#182131; color:var(--txt2); font-weight:600; font-size:13.5px; white-space:nowrap;}
+  tbody tr:hover{background:#1e2a3e;}
+  td.num{font-variant-numeric:tabular-nums; white-space:nowrap;}
+  .pill{display:inline-block; padding:2px 9px; border-radius:20px; font-size:12.5px; font-weight:600;}
+  .p-red{background:#ff5a5a1f; color:var(--red); border:1px solid #ff5a5a55;}
+  .p-yel{background:#ffcc4d1f; color:var(--yel); border:1px solid #ffcc4d55;}
+  .p-grn{background:#3fd68a1f; color:var(--grn); border:1px solid #3fd68a55;}
+  .p-blu{background:#4da3ff1f; color:var(--blu); border:1px solid #4da3ff55;}
+  .p-pur{background:#a98bff1f; color:var(--pur); border:1px solid #a98bff55;}
+
+  /* ============ MECHANISM CARDS ============ */
+  .mech{
+    background:linear-gradient(180deg,var(--card2),#1a2434);
+    border:1px solid var(--line); border-left:4px solid var(--red);
+    border-radius:12px; padding:16px 18px;
+  }
+  .mech.a{border-left-color:var(--red);}
+  .mech.b{border-left-color:var(--yel);}
+  .mech.c{border-left-color:var(--blu);}
+  .mech.d{border-left-color:var(--pur);}
+  .mech.e{border-left-color:var(--acc);}
+  .mech .no{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:26px; height:26px; border-radius:8px; background:#0f1725; border:1px solid var(--line);
+    font-size:13px; font-weight:700; color:var(--acc); margin-right:9px;
+  }
+  .mech h3{display:flex; align-items:center; margin-bottom:6px; color:var(--txt); font-size:15.5px;}
+  .mech p{margin:6px 0; color:var(--txt2); font-size:14.3px;}
+  .mech .evi{
+    margin-top:10px; padding:9px 12px; background:#0f1725; border-radius:9px;
+    border:1px dashed #35435e; font-size:13.3px; color:var(--txt3);
+  }
+  .mech .evi b{color:var(--acc2);}
+
+  /* ============ CHAIN ============ */
+  .chain{display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:8px;}
+  .node{
+    background:#0f1725; border:1px solid var(--line); border-radius:9px;
+    padding:8px 12px; font-size:13.3px; color:var(--txt2);
+  }
+  .node.hot{border-color:#ff5a5a66; color:#ffc9c9; background:#2a1a20;}
+  .arw{color:var(--txt3); font-size:16px;}
+
+  /* ============ PLAN ============ */
+  .step{
+    background:linear-gradient(180deg,var(--card),#182131); border:1px solid var(--line);
+    border-radius:13px; padding:18px 20px; position:relative;
+  }
+  .step .kicker{font-size:12.5px; letter-spacing:1.2px; color:var(--acc); font-weight:700;}
+  .step h3{margin:6px 0 10px; color:var(--txt);}
+  .step ul{margin:0; padding-left:20px; color:var(--txt2); font-size:14.3px;}
+  .step li{margin-bottom:7px;}
+  .step li b{color:var(--acc2);}
+
+  /* ============ CHECKLIST ============ */
+  .chk{display:grid; gap:9px;}
+  .chk label{
+    display:flex; gap:11px; align-items:flex-start; background:#0f1725;
+    border:1px solid var(--line); border-radius:9px; padding:10px 13px;
+    font-size:14.2px; color:var(--txt2); cursor:pointer; transition:.15s;
+  }
+  .chk label:hover{border-color:#3d4d6b; background:#131c2b;}
+  .chk input{margin-top:5px; accent-color:var(--acc); width:16px; height:16px; flex:none;}
+  .chk input:checked + span{color:var(--txt3); text-decoration:line-through;}
+
+  /* ============ MISC ============ */
+  .note{
+    border-left:3px solid var(--acc); background:#1a2334; border-radius:0 10px 10px 0;
+    padding:13px 17px; font-size:14.2px; color:var(--txt2); margin-top:14px;
+  }
+  .note b{color:var(--acc2);}
+  .warnbox{border-left-color:var(--red);}
+  .okbox{border-left-color:var(--grn);}
+  .svgshell{background:#0f1725; border:1px solid var(--line); border-radius:14px; padding:16px; overflow-x:auto;}
+  svg{display:block; margin:0 auto; max-width:100%; height:auto;}
+  .legend{display:flex; flex-wrap:wrap; gap:16px; margin-top:12px; font-size:13px; color:var(--txt2);}
+  .legend i{display:inline-block; width:11px; height:11px; border-radius:3px; margin-right:6px; vertical-align:middle;}
+  footer{margin-top:46px; padding-top:18px; border-top:1px solid var(--line); color:var(--txt3); font-size:13px;}
+  .kpi{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-top:16px;}
+  .kpi div{background:#0f1725; border:1px solid var(--line); border-radius:11px; padding:13px 15px;}
+  .kpi span{display:block; font-size:12.5px; color:var(--txt3);}
+  .kpi b{font-size:19px; color:var(--acc); font-variant-numeric:tabular-nums;}
+  .kpi b small{font-size:12.5px; color:var(--txt3); font-weight:400;}
+  @media print{body{background:#fff; color:#111;} .card,.step,.mech,header{background:#fff !important;}}
+
+  /* ===== 移动端适配（微信内置浏览器优化）===== */
+  *{ -webkit-text-size-adjust:100%; }
+  a{ word-break:break-all; }
+  .wrap{ max-width:100%; overflow-x:hidden; }
+  .tblwrap{
+    overflow-x:auto; -webkit-overflow-scrolling:touch;
+    margin-top:6px; padding-bottom:4px;
+    max-width:100%;
+    background:
+      linear-gradient(90deg, var(--card) 30%, rgba(27,37,54,0)) left center/24px 100% no-repeat,
+      linear-gradient(270deg, var(--card) 30%, rgba(27,37,54,0)) right center/24px 100% no-repeat;
+    background-attachment: local, local;
+  }
+  .tblwrap table{ min-width:560px; }
+  @media (max-width:820px){
+    .wrap{ padding:20px 14px 60px; }
+    .card{ padding:15px 14px; border-radius:12px; }
+    h1{ font-size:20px; line-height:1.5; }
+    h2{ font-size:17px; }
+    body{ font-size:14.5px; line-height:1.75; }
+    table{ font-size:12.5px; }
+    th,td{ padding:7px 8px; }
+    th{ font-size:12px; }
+    .tblwrap table{ min-width:640px; }
+  }
+  @media (max-width:420px){
+    .wrap{ padding:16px 11px 50px; }
+    h1{ font-size:18.5px; }
+  }</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="tag">耐火材料 · 失效分析报告</div>
+  <h1>冶炼超低不锈钢钢包用<span>低碳镁碳砖</span><br>剥落严重（寿命仅 4 次）原因分析与改进方案</h1>
+  <p class="sub">工况：VOD 真空精炼 &nbsp;|&nbsp; 材质：低碳镁碳砖（原配方总碳 ≈4.8% → 新配方 ≈5.2%）&nbsp;|&nbsp; 服役结果：剥落（spalling）为主，寿命 4 炉次</p>
+  <div class="badges">
+    <div class="badge bad">剥落性质 <b>热震 + 结构剥落为主</b></div>
+    <div class="badge warn">原配方病根 <b>石墨仅占碳素 31% / 产气 23 m³·t⁻¹</b></div>
+    <div class="badge bad">寿命 <b>4 次（目标 15~25 次）</b></div>
+    <div class="badge">新配方要点 <b>石墨 3% + 炭黑 0.6% + 铝镁合金 1% + B₄C 0.15%</b></div>
+    <div class="badge" style="border-color:#3fd68a66;">新配方判读 <b style="color:#3fd68a">石墨占比 31%→56%，产气 23→12 m³·t⁻¹</b></div>
+    <div class="badge" style="border-color:#ff5a5a66;">新配方短板 <b style="color:#ff8a8a">取消沥青+氧化铝微粉 → Al₂O₃ 收支减半</b></div>
+    <div class="badge" style="border-color:#ff5a5a66;">ZrO₂ 评估 <b style="color:#ff8a8a">真空碳热还原反作用 → 不推荐</b></div>
+  </div>
+  <div class="note" style="margin-top:12px;border-left-color:var(--acc);background:#241c16;">
+    <b>第 5 版新增：</b>第 3.5 节"煅烧氧化铝微粉是否必须添加"专项核算。<b>结论：不是非加不可，但代价容易被低估，建议恢复 0.8%~1.0%。</b>取消后基质 Al₂O₃ 来源只剩铝镁合金一条（总量 ≈1.88% → <b>≈0.94%</b>），尖晶石生成潜力由 ≈2.6% 降到 <b>≈1.3%（减半）</b>，同时失去常温预置的尖晶石"晶种"、微粉填充致密化与膨胀缓冲三项作用；且新配方同时取消了沥青，界面填隙职能已无替补。替代路线：预合成镁铝尖晶石细粉 1%~3%（较贵但稳妥）、恢复高温沥青粉 0.5%~0.8%（只补填隙、不补尖晶石化）。
+  </div>
+  <div class="note" style="margin-top:12px;border-left-color:var(--pur);background:#1c1a2a;">
+    <b>第 4 版新增：</b>第五章"加入 1%~2% 单斜氧化锆微粉"专项评估。<b>结论：不推荐</b>——相变增韧需要 5%~15% 的体积分数门槛，1%~2% 不成立；而真空下 ZrO₂ + 3C → ZrC + 2CO↑ 处于热力学临界，P(CO) 降到 10⁻³~10⁻⁴ atm 后被强烈推动，<b>每 1% ZrO₂ 额外产气约 2.4 L/kg 砖、额外耗碳约 0.29%、并留下约 0.2% 孔洞</b>，与本配方"降低产气 + 保住碳网络"的思路正相反。若确需 ZrO₂ 的抗渣与增韧收益，应改用<b>预合成镁锆砂（1%~3% 替代镁砂）</b>或部分稳定 ZrO₂（1%~1.5%）。
+  </div>
+  <div class="note" style="margin-top:12px;border-left-color:var(--grn);background:#16241c;">
+    <b>修订说明（第 3 版）：</b>已补入<b>新配方（石墨 3%、炭黑 0.6%、铝镁合金粉 200 目 1%、金属硅粉 320 目 1%、碳化硼 0.15%、热固树脂 3.5%；取消高温沥青粉与煅烧氧化铝微粉）</b>，并新增第三章"新配方 vs 原配方"逐项评估。<b>核心结论：新配方方向正确，把原配方的两个病根（石墨占比过低、产气量过高）都动了手术，预计寿命可提升到 8~12 炉；但取消氧化铝微粉与沥青后，基质界面强度成为新的短板。</b>
+  </div>
+  <div class="note" style="margin-top:12px;border-left-color:var(--yel);background:#241f16;">
+    <b>第 2 版修订说明：</b>补入原配方中的 <b>1% 高温沥青粉</b> 并重算碳平衡：总碳由 4.2% 修正为 ≈4.8%，"碳量不足"不再作为主因；有机结合剂总量升至 4.5%，烘烤期产气量被显著低估（≈23 m³/t砖）。沥青粉本身不是剥落原因——它是抗剥落手段，问题在选型与烘烤曲线。
+  </div>
+</header>
+
+<!-- ===================== 结论 ===================== -->
+<section>
+  <h2>一、结论先行 <em>Root Cause Summary</em></h2>
+  <div class="verdict">
+    <h3>原配方存在两个病根（碳网络形态失衡 + 结合剂气体负荷过高），被"VOD 强氧化—真空—高碱度渣—大温差"工况放大后形成复合剥落；新配方已对症下药，但取消沥青与氧化铝微粉后，基质界面强度成为新的短板——仍有 5 处需要收尾。</h3>
+    <ol>
+      <li><b>病根一：碳量够、碳的"形态"严重失衡。</b>原配方总碳约 4.8%（石墨 1.5% + 炭黑 1.5% + 沥青 1% + 树脂残碳），但<span class="hl">石墨只占碳素的 31%</span>——其余 69% 是点状炭黑与各向同性玻璃态碳（沥青碳、树脂碳），<b>既不能"桥接"颗粒、也不能定向导热</b>。结果导热率只有中高碳镁碳砖的 40%~55%，而线膨胀系数仍接近 MgO 本体（13~14×10⁻⁶/℃）：受热时膨胀大、内部温差陡，<b>这是热震剥落的根子</b>。</li>
+      <li><b>病根二：有机结合剂 4.5%（树脂 3.5% + 沥青 1%），烘烤期气体负荷过高。</b>按树脂有效挥发 35%、沥青挥发 25% 估算，挥发分总量约 2.7 wt%、<span class="hl">标准状态产气量约 23 m³/t 砖</span>。更危险的是 <b>350~550 ℃ 的"强度真空窗"</b>：沥青已熔融软化、树脂尚未碳化，砖体强度跌到全程最低，而产气速率接近峰值——<b>层裂、鼓泡就发生在这个窗口</b>，这些烘烤裂纹在 VOD 热震下直接成为剥落源。</li>
+      <li><b>VOD 工况把"热震"从一次性事件变成了每炉一次的循环加载。</b>VOD 处理温度 1650~1750 ℃、真空度数十~数百 Pa、吹氧脱碳 15~30 min，一炉之内经历"降温—真空—升温—出钢—空包急冷"，工作层单次温差可达 800~1100 ℃。<span class="hl">抗热震次数不够，第 3~5 炉必然出现贯通裂纹并掉块</span>，与"寿命 4 次"高度吻合。此外表面"脱碳层 + 渣蚀变质层"形成双层脆壳，是结构剥落的主通道。</li>
+      <li><b>新配方已对准两个病根下药：</b>石墨 1.5% → <b>3.0%</b>（占碳素比 31% → <b>56%</b>，桥接型碳近乎翻倍，导热与抗热震显著改善）；取消沥青后有机结合剂 4.5% → <b>3.5%</b>，产气量 23 → <b>≈12 m³/t 砖</b>，强度真空窗的破坏力几乎减半；新增 <b>B₄C 0.15%</b> 生成 B₂O₃ 玻璃膜封孔抗氧化、并消耗砖内 CO 削减内部气压。<b>方向完全正确，预计寿命可由 4 炉提升到 10~15 炉。</b></li>
+      <li><b>仍需收尾的 5 处：</b>①<b>金属硅粉 1% 没有下调</b>——Si + C → SiC 伴约 −20% 体积收缩，真空下 Si/SiO₂ + C → CO↑ + SiO↑ 继续产气，而抗氧化职能已由 B₄C 接替，建议降至 0.3%~0.5%；②<b>铝镁合金粉提到 1.0%</b> 虽增强尖晶石化，但 Al/Mg 与树脂羟基、水分反应放出 H₂，<b>用量越大析氢与闭合气孔越多</b>，且在 600~900 ℃ 出现"增强未到、旧结合已失"的中温强度低谷，建议 0.6%~0.8% 并用 200+325 目双峰；③<b>取消高温沥青粉</b>后失去 400~550 ℃ 的液相填隙与界面"焊接"；④<b>取消煅烧氧化铝微粉</b>后基质 Al₂O₃ 总量由 ≈1.88% 降到 ≈0.94%、尖晶石生成潜力<b>减半</b>，还丢掉常温预置骨架与微粉填充——③④叠加使骨料—基质界面强度成为新短板，建议恢复 0.8%~1.0% 煅烧氧化铝微粉（或改用 1%~3% 预合成镁铝尖晶石细粉），详见第 3.5 节；⑤<b>总碳升到 5.2%，已触及超低碳钢用砖上限</b>，必须实测钢水增碳，若需降碳应优先砍树脂与炭黑、<b>绝不先砍石墨</b>。</li>
+    </ol>
+    <div class="note warnbox" style="margin-top:16px;">
+      <b>一句话总结：</b>原配方"石墨太少 + 产气太多"，新配方把这两条都改了，是明显进步；<b>但新配方同时砍掉了沥青与氧化铝微粉这两个"界面填充者"，下一步的重点从"调碳量"转向"补回界面强度 + 调控产气"——恢复 0.8%~1.0% 煅烧氧化铝微粉、把金属硅降到 0.3%~0.5%、把铝镁合金调到 0.6%~0.8%、按新体系重定烘烤曲线（峰值 1250~1350 ℃），同时盯住钢水增碳。</b>
+    </div>
+    <div class="note" style="margin-top:12px;">
+      <b>需要你确认的一点：</b><b>新配方是准备上线试用，还是已经在用？</b>如果已经在用而剥落依然严重，请提供用后残砖的<b>断面分带照片与残碳检测值</b>——那将直接判定新配方是"石墨改善未奏效""产气问题仍在作祟"，还是"取消氧化铝微粉导致基质强度不足"。
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 配方物性核算 ===================== -->
+<section>
+  <h2>二、配方核算 <em>对照实际配料反算关键物性</em></h2>
+  <div class="card">
+    <table>
+      <caption>表 1 &nbsp;配料组成与作用核算（按 100% 计，含新配方对照）</caption>
+      <thead>
+        <tr><th>组分</th><th class="num">原配方</th><th class="num">新配方</th><th>作用与核算出的问题</th><th>风险</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>96.5 电熔镁砂（骨料 + 细粉）</td><td class="num">≈88.6%</td><td class="num">≈88.45%</td>
+          <td>主晶相，抗渣抗侵蚀骨架。<b>MgO 96.5% 属中档电熔砂，杂质总量约 3.2%</b>（SiO₂ ≈1.2%、CaO ≈1.4%、Fe₂O₃ ≈0.6%），高温下形成 CMS、C₃MS₂ 等低熔点相，弱化基质、降低抗渣性</td>
+          <td><span class="pill p-yel">中高</span></td>
+        </tr>
+        <tr>
+          <td>石墨（-197 / 鳞片）</td><td class="num">1.5%</td><td class="num" style="color:var(--grn);"><b>3.0%</b></td>
+          <td>导热、抗热震、抗渣润湿。<b>原配方量太少，片状石墨的"桥接"结构被切断，无法形成连续导热网络；新配方翻倍后石墨占碳素比例由 31% 升至 56%，是抗剥落能力提升的关键</b></td>
+          <td><span class="pill p-grn">新配方改善</span></td>
+        </tr>
+        <tr>
+          <td>炭黑</td><td class="num">1.5%</td><td class="num">0.6%</td>
+          <td>粒径 20~50 nm，比表面极大、<b>吸树脂量高</b>（每 1% 约额外吸附 0.3%~0.5% 树脂）；碳为点状无定向，不提供桥接与导热。新配方下调后有效结合剂增加，但需验证分散均匀性</td>
+          <td><span class="pill p-blu">中</span></td>
+        </tr>
+        <tr>
+          <td>高温沥青粉</td><td class="num">1.0%</td><td class="num" style="color:var(--red);">0（取消）</td>
+          <td>400~550 ℃ 熔融成液相填隙、炭化后"焊住"骨料—基质界面，并贡献约 0.7% 残碳。<b>取消后界面填隙职能需靠铝镁尖晶石化替代</b>；好处是产气量大幅下降，烘烤层裂风险降低</td>
+          <td><span class="pill p-yel">得失并存</span></td>
+        </tr>
+        <tr>
+          <td>煅烧氧化铝微粉</td><td class="num">1.0%</td><td class="num" style="color:var(--red);"><b>0（取消）</b></td>
+          <td>提供预置 Al₂O₃ 细粉，与 MgO 生成镁铝尖晶石增强基质、并起微粉填充致密化作用。<b>取消后基质中 Al₂O₃ 只剩铝镁合金一条来源（0.94%），尖晶石生成量降到原来的约一半，且全部依赖高温原位反应（900~1200 ℃），中温阶段基质缺 Al₂O₃ 骨架支撑，显气孔率上升</b>（详见第 3.5 节专项核算）</td>
+          <td><span class="pill p-red">新配方削弱</span></td>
+        </tr>
+        <tr>
+          <td>铝镁合金粉 200 目</td><td class="num">0.4%</td><td class="num" style="color:var(--grn);"><b>1.0%</b></td>
+          <td>700~1200 ℃ 生成尖晶石 + MgO，伴随膨胀填隙、抗氧化。<b>提高后增强效果明显，但 Al/Mg 与树脂羟基及水分反应放出 H₂，用量越大析氢与闭合气孔越多</b>；200 目偏粗，反应滞后且不均匀</td>
+          <td><span class="pill p-yel">中高</span></td>
+        </tr>
+        <tr>
+          <td>金属硅粉 320 目</td><td class="num">1.0%</td><td class="num" style="color:var(--red);">1.0%（未变）</td>
+          <td>生成 SiC、提高抗氧化与高温强度。<b>1% 仍偏高</b>：Si + C → SiC 伴随约 −20% 体积收缩（收缩裂纹）；高温下 Si/SiO₂ + C → <b>CO↑ + SiO↑</b>，真空下气体逸出更剧烈。<b>新配方已有 B₄C 接替抗氧化职能，此项理应下调</b></td>
+          <td><span class="pill p-red">高</span></td>
+        </tr>
+        <tr>
+          <td>碳化硼 B₄C</td><td class="num">0</td><td class="num" style="color:var(--grn);"><b>0.15%</b></td>
+          <td>与 CO 反应生成 B₂O₃ 玻璃膜，<b>既消耗砖内 CO（削减内部气压）、又封堵气孔阻断氧扩散</b>，并提高碳结合高温强度。<b>本配方最高价值的增量</b>；局限是 B₂O₃ 在真空 + 1700 ℃ 下会挥发，保护作用衰减</td>
+          <td><span class="pill p-grn">新配方改善</span></td>
+        </tr>
+        <tr>
+          <td>热固性（酚醛）树脂</td><td class="num">3.5%</td><td class="num">3.5%（未变）</td>
+          <td>结合剂。残碳率按 48% 计贡献约 <b>1.68% 碳</b>与约 1.6% 挥发分。<b>原配方与沥青叠加后有机结合剂达 4.5%、产气量 ≈23 m³/t砖；新配方取消沥青后降至 3.5%、≈12 m³/t砖，层裂风险明显下降。</b>但沥青与炭黑减少后包覆量可能不足，建议提到 3.8%~4.0%</td>
+          <td><span class="pill p-yel">中（新配方改善）</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="kpi">
+      <div><span>总碳估算（原 → 新）</span><b>4.8 → 5.2<small> %</small></b></div>
+      <div><span>碳素中石墨占比</span><b>31 → 56<small> %</small></b></div>
+      <div><span>有机结合剂总量</span><b>4.5 → 3.5<small> %</small></b></div>
+      <div><span>烘烤期挥发分（原 → 新）</span><b>≈2.7 → 1.35<small> wt%</small></b></div>
+      <div><span>标准状态产气量</span><b>≈23 → 12<small> m³/t砖</small></b></div>
+      <div><span>200 ℃ 体积密度估算</span><b>3.02 → 3.00<small> g/cm³</small></b></div>
+      <div><span>骨料+细粉合计</span><b>88.6 → 88.45<small> %</small></b></div>
+      <div><span>金属粉合计</span><b>1.4 → 2.15<small> %</small></b></div>
+      <div><span>基质 Al₂O₃ 总量</span><b>1.88 → 0.94<small> %</small></b></div>
+      <div><span>尖晶石生成潜力</span><b>2.6 → 1.3<small> %（减半）</small></b></div>
+    </div>
+    <p style="color:var(--txt3);font-size:13px;margin:10px 2px 0;">注：碳含量按石墨固定碳 97%、炭黑 99%、高温沥青结焦值 70%、树脂残碳率 48%、B₄C 含碳 21.7% 估算；产气量按树脂有效挥发 35%、高温沥青挥发 25% 估算。B₄C 中的碳以化合物形式存在，不参与"游离碳/增碳"计量，故未计入总碳。</p>
+
+    <div class="note">
+      <b>核算判断：</b>总碳由原配方约 <b>4.8%</b> 升到新配方约 <b>5.2%</b>（含 1% 沥青粉时）、比"取消沥青但不加石墨"的 4.2% 方案高出 1.0 个百分点，已经触及超低碳钢用砖的<b>允许上限</b>（一般 3%~5%）——所以这不是"碳不够"的问题，而是要盯住"碳有没有把钢水碳带上去"。真正决定剥落的是<b>"碳的形态"与"结合剂体系的气体负荷"</b>：<b>新配方把石墨占比从 31% 提到 56%、把产气量从 23 降到 12 m³/t砖，正是打在两个病根上；剩下的短板是金属硅 1% 未下调、铝镁合金 1% 带来的析氢风险，以及取消沥青后骨料—基质界面的填隙职能需要由尖晶石化来接替。</b>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 配方变更评估 ===================== -->
+<section>
+  <h2>三、新配方 vs 原配方 <em>逐项变更评估与量化对比</em></h2>
+
+  <div class="card">
+    <h3 style="color:var(--txt);">变更清单</h3>
+    <table>
+      <caption>表 2 &nbsp;配方变更逐项对照（质量百分比）</caption>
+      <thead><tr><th>组分</th><th class="num">原配方</th><th class="num">新配方</th><th class="num">变化</th><th>变更意图</th><th>评价</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>石墨（-197 / 鳞片）</td><td class="num">1.5%</td><td class="num">3.0%</td><td class="num" style="color:var(--grn);">+1.5%</td>
+          <td>提高导热与抗热震，强化碳网络桥接</td><td><span class="pill p-grn">方向完全正确</span></td>
+        </tr>
+        <tr>
+          <td>炭黑</td><td class="num">1.5%</td><td class="num">0.6%</td><td class="num" style="color:var(--yel);">−0.9%</td>
+          <td>让位给石墨，减少树脂吸附</td><td><span class="pill p-yel">可接受，但分散均匀性需验证</span></td>
+        </tr>
+        <tr>
+          <td>高温沥青粉</td><td class="num">1.0%</td><td class="num">0</td><td class="num" style="color:var(--red);">−1.0%</td>
+          <td>降低挥发分与产气量</td><td><span class="pill p-yel">双刃剑：产气降低，但失去液相填隙</span></td>
+        </tr>
+        <tr>
+          <td>铝镁合金粉 200 目</td><td class="num">0.4%</td><td class="num">1.0%</td><td class="num" style="color:var(--grn);">+0.6%</td>
+          <td>增强尖晶石化、抗氧化与增韧</td><td><span class="pill p-yel">增强有效，但析氢与产气风险上升</span></td>
+        </tr>
+        <tr>
+          <td>金属硅粉 320 目</td><td class="num">1.0%</td><td class="num">1.0%</td><td class="num">不变</td>
+          <td>生成 SiC、提高抗氧化</td><td><span class="pill p-red">仍是偏高项，建议下调</span></td>
+        </tr>
+        <tr>
+          <td>碳化硼 B₄C</td><td class="num">0</td><td class="num">0.15%</td><td class="num" style="color:var(--grn);">+0.15%</td>
+          <td>抗氧化、封孔、提高碳结合强度</td><td><span class="pill p-grn">本配方最高价值的增量</span></td>
+        </tr>
+        <tr>
+          <td>热固性（酚醛）树脂</td><td class="num">3.5%</td><td class="num">3.5%</td><td class="num">不变</td>
+          <td>结合剂</td><td><span class="pill p-yel">沥青与炭黑减少后，包覆量可能不足</span></td>
+        </tr>
+        <tr>
+          <td>煅烧氧化铝微粉</td><td class="num">1.0%</td><td class="num" style="color:var(--red);">0（取消）</td><td class="num" style="color:var(--red);">−1.0%</td>
+          <td>基质尖晶石化</td><td><span class="pill p-red">Al₂O₃ 收支被打破，需专项核算</span></td>
+        </tr>
+        <tr>
+          <td>96.5 电熔镁砂</td><td class="num">≈88.6%</td><td class="num">≈88.45%</td><td class="num">≈不变</td>
+          <td>主晶相</td><td><span class="pill p-yel">建议细粉升级为 MgO ≥97.5%</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card" style="margin-top:16px;">
+    <h3 style="color:var(--txt);">关键指标重算对比</h3>
+    <table>
+      <caption>表 3 &nbsp;原配方 / 新配方 关键物性反算对照</caption>
+      <thead><tr><th>指标</th><th class="num">原配方</th><th class="num">新配方</th><th>对剥落寿命的影响判读</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>总碳</td><td class="num">≈4.8%</td><td class="num" style="color:var(--acc2);">≈5.2%</td>
+          <td>碳量略升，<b>增碳风险需实测确认</b>；但碳量从来不是本问题的短板</td>
+        </tr>
+        <tr>
+          <td><b>石墨占碳素比例</b></td><td class="num">31%</td><td class="num" style="color:var(--grn);"><b>56%</b></td>
+          <td><b style="color:var(--grn)">最大亮点</b>：桥接型碳占比近乎翻倍，导热与抗热震显著改善</td>
+        </tr>
+        <tr>
+          <td>有机结合剂总量</td><td class="num">4.5%（树脂 3.5 + 沥青 1）</td><td class="num" style="color:var(--grn);">3.5%（仅树脂）</td>
+          <td>产气总量下降，烘烤层裂风险明显降低</td>
+        </tr>
+        <tr>
+          <td><b>基质 Al₂O₃ 总量</b></td><td class="num">≈1.88%</td><td class="num" style="color:var(--red);"><b>≈0.94%</b></td>
+          <td><b style="color:var(--red)">明显削弱</b>：Al₂O₃ 来源只剩铝镁合金一条腿，尖晶石生成量减少约一半</td>
+        </tr>
+        <tr>
+          <td><b>尖晶石生成潜力</b></td><td class="num">≈2.6%</td><td class="num" style="color:var(--red);">≈1.3%</td>
+          <td>基质"箍紧"能力下降，骨料—基质界面强度回落（沥青填隙职能更难接替）</td>
+        </tr>
+        <tr>
+          <td>Al₂O₃ 的引入阶段</td><td class="num">常温预置 + 高温原位（双通道）</td><td class="num" style="color:var(--red);">仅高温原位（900~1200 ℃）</td>
+          <td>中温阶段基质缺 Al₂O₃ 骨架，600~900 ℃ 强度低谷加深</td>
+        </tr>
+        <tr>
+          <td>基质致密度（微粉填充）</td><td class="num">Al₂O₃ 微粉参与填充</td><td class="num" style="color:var(--red);">失去该填充组分</td>
+          <td>显气孔率上升，渣与氧的渗透通道增多</td>
+        </tr>
+        <tr>
+          <td><b>烘烤期产气量</b></td><td class="num">≈23 m³/t砖</td><td class="num" style="color:var(--grn);">≈12 m³/t砖</td>
+          <td><b style="color:var(--grn)">第二亮点</b>：几乎减半，350~550 ℃ 强度真空窗的破坏力减弱</td>
+        </tr>
+        <tr>
+          <td>金属粉总量</td><td class="num">1.4%</td><td class="num" style="color:var(--red);">2.15%</td>
+          <td>抗氧化增强，<b>但析氢与真空产气风险同步上升</b>（见下节）</td>
+        </tr>
+        <tr>
+          <td>抗氧化能力</td><td class="num">一般</td><td class="num" style="color:var(--grn);">明显提升</td>
+          <td>B₄C + Al-Mg + Si 三重保护，脱碳层应显著变薄</td>
+        </tr>
+        <tr>
+          <td>200 ℃ 体积密度估算</td><td class="num">3.02 g/cm³</td><td class="num">≈3.00 g/cm³</td>
+          <td>石墨增多使密度略降，但铝镁尖晶石化膨胀可部分补偿，基本持平</td>
+        </tr>
+        <tr>
+          <td>三炉后剥落预测</td><td class="num" style="color:var(--red);">第 3~5 炉剥落（实测 4 炉）</td><td class="num" style="color:var(--grn);">有望提升至 <b>10~15 炉</b></td>
+          <td>前提是解决铝镁合金的析氢与中温强度问题</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="note okbox">
+      <b>总体判断：新配方在原配方的三个致命短板上都动了手术——石墨翻倍（治热震）、沥青移除（治产气）、B₄C 引入（治抗氧化）。方向正确，是明显进步。</b>但仍有两处"没动到位"：<b>①金属硅仍保持 1%，且铝镁合金提到 1%，金属粉合计 2.15%，在真空条件下的产气量与析氢风险反而高于原配方；②移除沥青后，骨料—基质界面的液相填隙作用缺失，"谁来做沥青原来做的活"必须由铝镁尖晶石化来补上，否则界面依然疏松。</b>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-top:16px;">
+    <div class="card">
+      <h3 style="color:var(--grn);">碳化硼 0.15%：本配方最高价值的增量</h3>
+      <ul style="color:var(--txt2);font-size:14.3px;padding-left:20px;margin:0;">
+        <li style="margin-bottom:8px;"><b>机理：</b>B₄C 在 1300~1400 ℃ 以上与 CO 反应生成 B₂O₃（B₄C + 6CO → 2B₂O₃ + 7C），<b>既消耗掉砖内的 CO 气体（直接削减内部气压裂纹的驱动力），又在碳表面形成 B₂O₃ 玻璃态膜，封堵气孔、阻断氧的扩散通道</b>——这正是低碳镁碳砖抗氧化最经典的手段之一。</li>
+        <li style="margin-bottom:8px;"><b>附带收益：</b>硼可进入碳结构中形成 B—C 键，提高碳结合的高温强度与石墨化程度，对"碳网络强度不足"这一根本问题有直接帮助。</li>
+        <li style="margin-bottom:8px;"><b>用量的合理性：</b>0.15% 的 B₄C 含碳约 0.032%、含硼约 0.118%，属常规添加区间（0.1%~0.3%）的中下水平，安全、不易过量（过量会生成低熔点硼酸盐相、反而降低抗渣性）。</li>
+        <li style="margin-bottom:8px;"><b>VOD 工况下的局限：</b>B₂O₃ 熔点约 450 ℃、沸点约 1860 ℃，<b>在数十~数百 Pa 的真空与 1700 ℃ 下会明显挥发</b>，保护膜会持续被"抽走"。因此真空段后期 B₄C 的保护效果会衰减，<b>不能指望它单独解决真空下的碳损失</b>，必须与石墨碳网络、金属粉协同。</li>
+        <li><b>成本提醒：</b>B₄C 单价高（数百元/kg），0.15% 约使吨砖成本增加数十元——在本配方的所有增量中，它的性价比是最高的，<b>不建议为省成本取消</b>。</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3 style="color:var(--red);">铝镁合金 0.4% → 1.0%：收益与风险同时放大</h3>
+      <ul style="color:var(--txt2);font-size:14.3px;padding-left:20px;margin:0;">
+        <li style="margin-bottom:8px;"><b>收益：</b>Al、Mg 在 700~1200 ℃ 氧化/氮化生成 MgAl₂O₄ 与 MgO，伴随 <b>+5%~8% 体积膨胀</b>，能填充气孔、强化基质、补偿取消沥青后的界面疏松；同时是有效的抗氧化"牺牲剂"。</li>
+        <li style="margin-bottom:8px;"><b>风险一（析氢）：</b>Al、Mg 活性极高，与树脂中的羟基、水分及环境潮气反应放出 <b>H₂</b>：2Al + 3H₂O → Al₂O₃ + 3H₂↑。用量从 0.4% 提到 1.0% 后，<b>析氢量成倍增加</b>，会在砖内形成闭合气孔群与微裂纹——这是"越加越疏松"的反效果。</li>
+        <li style="margin-bottom:8px;"><b>风险二（中温强度凹陷）：</b>铝镁合金的尖晶石化要到 900~1200 ℃ 才见效，而树脂碳化在 500~700 ℃ 完成——<b>在 600~900 ℃ 区间存在一个"增强未到、旧结合已失"的强度低谷</b>，与原有的强度真空窗连成一片。</li>
+        <li style="margin-bottom:8px;"><b>风险三（消耗结合剂）：</b>Al 与树脂羟基反应会<b>破坏酚醛树脂的胶黏作用</b>，使中温强度进一步下降；同时生成 Al₂O₃ 消耗了本可用于尖晶石化的铝。</li>
+        <li><b>风险四（氧化膜与储存）：</b>200 目铝镁合金粉比表面大、易吸湿氧化，钝化后活性下降。必须<b>密封干燥储存、开袋即用、控制混料环境湿度</b>，否则配方里的 1% 实际有效量可能只有 0.6%~0.8%。</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px;">
+    <h3 style="color:var(--txt);">新配方下的调整建议（在原七章方案基础上修订）</h3>
+    <table>
+      <caption>表 4 &nbsp;针对新配方的二次优化建议</caption>
+      <thead><tr><th>项目</th><th class="num">新配方现状</th><th class="num">建议值</th><th>理由</th></tr></thead>
+      <tbody>
+        <tr><td>石墨</td><td class="num">3.0%</td><td class="num">3.0%~3.5%</td><td>维持并小幅上调，继续强化碳桥接；同时密切监控钢水增碳</td></tr>
+        <tr><td>炭黑</td><td class="num">0.6%</td><td class="num">0.6%~0.8%</td><td>保持填充与分散作用，注意混料均匀性</td></tr>
+        <tr><td><b>铝镁合金粉</b></td><td class="num" style="color:var(--red);">1.0%</td><td class="num" style="color:var(--grn);"><b>0.6%~0.8%</b></td><td>把析氢与产气降下来；粒度改为 200 目 + 325 目双峰，提高反应均匀性</td></tr>
+        <tr><td><b>金属硅粉</b></td><td class="num" style="color:var(--red);">1.0%</td><td class="num" style="color:var(--grn);"><b>0.3%~0.5%</b></td><td>Si + C → SiC 伴 −20% 体积收缩，且真空下产 SiO/CO；B₄C 已接替其抗氧化职能，可大胆下调</td></tr>
+        <tr><td>碳化硼</td><td class="num">0.15%</td><td class="num">0.15%~0.20%</td><td>维持或略增，注意真空下的挥发损耗</td></tr>
+        <tr><td><b>热固树脂</b></td><td class="num" style="color:var(--red);">3.5%</td><td class="num" style="color:var(--grn);"><b>3.8%~4.0%</b></td><td><b>本版思路的重要修正：</b>沥青移除后液相填隙作用缺失，且石墨/炭黑/微粉比表面增大，需要更多树脂包覆；须选<b>高残碳（≥50%）、低水分（≤1%）、低游离酚</b>牌号以抑制析氢</td></tr>
+        <tr><td><b>煅烧氧化铝微粉</b></td><td class="num" style="color:var(--red);">0（已取消）</td><td class="num" style="color:var(--grn);"><b>建议恢复 0.8%~1.0%</b></td><td><b>本版新增判断：</b>取消后基质 Al₂O₃ 总量由 ≈1.88% 降到 ≈0.94%，尖晶石生成潜力减半，且失去常温预置的 Al₂O₃ 骨架与微粉填充作用。恢复 0.8%~1.0% 即可（不必到 1.5%~2.0%，以免与铝镁合金 1% 的膨胀叠加过量）——理由见第 3.5 节</td></tr>
+        <tr><td>镁砂细粉</td><td class="num">96.5 电熔</td><td class="num">MgO ≥97.5% 高纯电熔</td><td>降低杂质与低熔点相，提高抗渣性</td></tr>
+        <tr><td>烘烤曲线</td><td class="num">未针对新体系重定</td><td class="num">按"树脂 3.5%+ 无沥青 + 铝镁合金"重定</td><td>产气量降低后可适度加速：200~400 ℃ ≤15 ℃/h、400~600 ℃ ≤12 ℃/h 并保温 4~6 h、峰值 1250~1350 ℃ 保温 ≥4 h，总时长 ≥36 h（原为 ≥48 h）</td></tr>
+      </tbody>
+    </table>
+    <div class="note warnbox">
+      <b>最需要立刻做的一件事：</b>核算<b>新配方的钢水增碳量</b>。总碳由 4.8% 升到 5.2%、石墨由 1.5% 升到 3.0%，虽仍低于常规镁碳砖（10%~18%），但已触及"超低碳"用砖的上限。若 VOD 后钢水碳含量仍稳定合格（VOD 本身具备强脱碳能力，通常无虞），则<b>这个碳量可以放心用，甚至可再加石墨</b>；若已出现增碳压力，则应优先下调<b>炭黑与树脂</b>（树脂 3.5% 贡献约 1.68% 碳），而<b>保留石墨 3%</b>——因为石墨是抗热震的主力，绝不能先砍它。
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px;">
+    <h3 style="color:var(--txt);">3.5 &nbsp;煅烧氧化铝微粉是否必须添加：Al₂O₃ 收支专项核算</h3>
+    <div class="note warnbox" style="margin-top:0;">
+      <b>结论：不是"非加不可"，但取消它是本配方里代价最容易被低估的一项改动，建议恢复 0.8%~1.0%。</b>氧化铝微粉在配方里承担三项职责，取消后这三项同时落空，而且取消后"接替沥青填隙职能"的最后一条路也被堵上了。
+    </div>
+
+    <h3 style="color:var(--acc2);margin-top:18px;">第一步：算清新旧配方的 Al₂O₃ 收支</h3>
+    <table>
+      <caption>表 4b &nbsp;基质 Al₂O₃ 来源与尖晶石生成潜力核算（铝镁合金按 Al 50% / Mg 50% 计）</caption>
+      <thead><tr><th>Al₂O₃ 来源</th><th class="num">原配方</th><th class="num">新配方（取消氧化铝微粉）</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>煅烧氧化铝微粉直接提供</td><td class="num">1.00%</td><td class="num" style="color:var(--red);">0</td><td>常温预置、粒度 1~5 μm、反应活性最高的一条通道</td></tr>
+        <tr><td>铝镁合金粉中 Al 氧化提供</td><td class="num">0.4% × 50% × (102/54) ≈ 0.38%</td><td class="num">1.0% × 50% × (102/54) ≈ <b>0.94%</b></td><td>需在 900~1200 ℃ 原位氧化后才生成，且伴随膨胀与析氢</td></tr>
+        <tr><td>镁砂与石墨带入（杂质级）</td><td class="num">≈0.5%</td><td class="num">≈0.5%</td><td>96.5 电熔镁砂中的 Al₂O₃ 杂质，非活性组分，参与尖晶石化有限</td></tr>
+        <tr style="background:#241f16;"><td><b>基质 Al₂O₃ 总量</b></td><td class="num"><b>≈1.88%</b></td><td class="num" style="color:var(--red);"><b>≈0.94%</b></td><td><b>下降约 50%</b></td></tr>
+        <tr style="background:#241f16;"><td><b>尖晶石（MgAl₂O₄）生成潜力</b></td><td class="num"><b>≈2.6%</b></td><td class="num" style="color:var(--red);"><b>≈1.3%</b></td><td>按 MgO + Al₂O₃ → MgAl₂O₄ 化学计量折算，<b>减半</b></td></tr>
+      </tbody>
+    </table>
+    <p style="color:var(--txt3);font-size:13px;margin:10px 2px 0;">注：铝镁合金粉的实际 Al/Mg 比例按牌号不同在 45:55 ~ 60:40 之间波动，此处按 50:50 估算；镁砂带入 Al₂O₃ 按 MgO 96.5% 的典型杂质水平取 0.5%，该部分活性低、实际参与尖晶石化的比例有限，未计入尖晶石潜力。</p>
+
+    <h3 style="color:var(--acc2);margin-top:18px;">第二步：氧化铝微粉到底承担哪三项职责</h3>
+    <div class="grid g3">
+      <div class="card" style="background:#0f1725;">
+        <h3 style="font-size:14.5px;">① 常温预置的尖晶石化"晶种"</h3>
+        <p style="color:var(--txt2);font-size:14px;margin:0;">1~5 μm 的活性 Al₂O₃ 与 MgO 细粉在 <b>1000~1300 ℃ 就开始尖晶石化</b>，等于给基质预埋了一层骨架与"晶种"。铝镁合金要到 900~1200 ℃ 才氧化出 Al₂O₃、再与 MgO 反应，<b>滞后一整个温度段</b>——而这正好落在烘烤与头几炉的关键强度建立期。</p>
+      </div>
+      <div class="card" style="background:#0f1725;">
+        <h3 style="font-size:14.5px;">② 微粉填充与致密化</h3>
+        <p style="color:var(--txt2);font-size:14px;margin:0;">1% 的亚微米 Al₂O₃ 填在骨料—基质界面的微孔中，是<b>降低显气孔率的直接手段</b>。取消后这部分填充消失，气孔率上升，<b>渣与氧的渗透通道增多</b>——对本来就在剥落的砖是雪上加霜。</p>
+      </div>
+      <div class="card" style="background:#0f1725;">
+        <h3 style="font-size:14.5px;">③ 膨胀系数的"中间缓冲"</h3>
+        <p style="color:var(--txt2);font-size:14px;margin:0;">镁铝尖晶石线膨胀系数约 8×10⁻⁶/℃，介于石墨（4~5）与 MgO（13~14）之间，起<b>缓冲热膨胀失配</b>的作用；同时尖晶石本身抗热震优于方镁石。尖晶石量减半，这个缓冲层就变薄了。</p>
+      </div>
+    </div>
+
+    <h3 style="color:var(--acc2);margin-top:18px;">第三步：能不能用别的组分替代它？</h3>
+    <table>
+      <caption>表 4c &nbsp;氧化铝微粉的三条替代路线对比</caption>
+      <thead><tr><th>替代路线</th><th>能否替代</th><th>代价</th><th>评价</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>提高铝镁合金粉用量</b>（把 Al₂O₃ 补回来）</td>
+          <td>部分可以——要到 <b>2.6%</b> 左右才能补回原来的 1% Al₂O₃</td>
+          <td>①析氢量随用量线性上升，闭合气孔与微裂纹增多；②尖晶石化伴随 <b>+3%~5% 体积膨胀</b>，2.6% 用量的膨胀叠加会造成基质局部胀裂；③成本远高于氧化铝微粉</td>
+          <td><span class="pill p-red">不可取</span></td>
+        </tr>
+        <tr>
+          <td><b>恢复 0.5%~0.8% 高温沥青粉</b></td>
+          <td>能替代"填隙与界面固结"这一项，<b>替代不了尖晶石化</b></td>
+          <td>产气量回升约 3~4 m³/t砖；需同步把 400~600 ℃ 的烘烤保温时间适当延长</td>
+          <td><span class="pill p-yel">备选</span></td>
+        </tr>
+        <tr>
+          <td><b>改用预合成镁铝尖晶石细粉 1%~3%</b></td>
+          <td>能，且比"原位生成"更稳妥</td>
+          <td>成本高于煅烧氧化铝微粉；但<b>无膨胀突变、无产气、粒度与分布可控</b>，是国内外低碳镁碳砖的成熟做法</td>
+          <td><span class="pill p-grn">可选，偏贵</span></td>
+        </tr>
+        <tr>
+          <td><b>直接用煅烧氧化铝微粉 0.8%~1.0%</b></td>
+          <td>—（就是原方案）</td>
+          <td>成本极低（吨砖仅增加十几元），无产气、无析氢；唯一要控制的是用量别过量导致膨胀叠加</td>
+          <td><span class="pill p-grn">首选</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="note okbox">
+      <b>最终建议：恢复 0.8%~1.0% 煅烧氧化铝微粉（配 0.3% 活性 α-Al₂O₃ 更佳）。</b>理由有三：<b>①它太便宜</b>——吨砖成本仅十几元，是全部调整项里性价比最高的之一；<b>②它是"无副作用的 Al₂O₃ 通道"</b>——不像铝镁合金那样析氢、膨胀、滞后；<b>③取消它之后，"取消沥青"造成的界面填隙空缺就彻底没有替补了</b>，而新配方恰好同时取消了沥青。<b>用量上不必回到 1.5%~2.0%</b>：因为铝镁合金已由 0.4% 提到 1.0%，两者叠加时 Al₂O₃ 总量会到 2.4%~2.9%，尖晶石化膨胀合计可能超过 6%，反而有胀裂基质的风险——<b>0.8%~1.0% 是"补上缺口又不过量"的平衡点。</b>
+    </div>
+
+    <div class="note">
+      <b>一句话回答"必须添加吗"：</b>从化学配平看不是必须（铝镁合金能提供 Al₂O₃），但从<b>工程可靠性</b>看，取消它意味着把基质增强的全部希望押在一个"高温才反应、还会析氢、膨胀不均匀"的金属粉上，同时丢掉微粉填充与中温强度支撑。<b>在没有用预合成尖晶石或沥青粉做替补的前提下，建议加回 0.8%~1.0%。</b>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 沥青粉专门分析 ===================== -->
+<section>
+  <h2>四、高温沥青粉：为什么移除它要谨慎 <em>原配方的关键组分</em></h2>
+  <div class="grid g2">
+    <div class="card">
+      <h3 style="color:var(--grn);">沥青粉的正面作用（为什么原配方要加它）</h3>
+      <ul style="color:var(--txt2);font-size:14.3px;padding-left:20px;margin:0;">
+        <li style="margin-bottom:8px;"><b>提高残碳、降低气孔率：</b>高温沥青在 400~550 ℃ 熔融成液相，渗入基质微孔与骨料—基质界面，炭化后形成<b>镶嵌状沥青碳</b>，把原本疏松的界面"焊住"，是低碳镁碳砖里最经济的增碳与致密化手段（1% 沥青粉约可贡献 0.6%~0.7% 残碳）。</li>
+        <li style="margin-bottom:8px;"><b>改善抗热震：</b>沥青碳在 1300 ℃ 以上开始石墨化，形成易滑移的层状结构，能<b>耗散热应力、钝化裂纹尖端</b>，是低碳化后补偿抗热震能力的关键组分。</li>
+        <li style="margin-bottom:8px;"><b>改善成型与抗氧化：</b>常温下起塑性剂作用，降低颗粒间摩擦、提高成型密度；沥青碳填充气孔后<b>降低氧的扩散通道</b>，抑制脱碳层增厚。</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--red);">沥青粉的负面作用（本配方为什么被它拖累）</h3>
+      <ul style="color:var(--txt2);font-size:14.3px;padding-left:20px;margin:0;">
+        <li style="margin-bottom:8px;"><b>"强度真空窗"：</b>350~550 ℃ 时沥青已熔融软化而树脂尚未完成碳化，砖体强度跌到全程最低点，<b>此时产气速率却接近峰值</b>——气体在几乎无强度的基质里膨胀，直接形成层裂与鼓泡。</li>
+        <li style="margin-bottom:8px;"><b>挥发分叠加：</b>沥青挥发分 + 树脂挥发分使 200~600 ℃ 的总产气量比只用树脂的配方高出 40%~80%，若烘烤曲线不重定，气体来不及逸出。</li>
+        <li style="margin-bottom:8px;"><b>低温炭化收缩：</b>沥青炭化体积收缩可达 30%~50%，在基质内产生收缩应力微裂纹；若烘烤未达到 1300 ℃ 以上，沥青碳无法石墨化，这些微裂纹就<b>永久保留</b>成为热震裂纹源。</li>
+        <li style="margin-bottom:8px;"><b>选型风险：</b>若误用软化点 80~120 ℃ 的普通/中温沥青，挥发分高达 45%~55%、QI 高、残碳率低，则上述负面作用全面放大而正面作用大打折扣。</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px;">
+    <h3 style="color:var(--txt);">取消沥青粉的得失：以原配方为基准的对比估算</h3>
+    <table>
+      <caption>表 5 &nbsp;含 1% 高温沥青粉 vs 取消沥青粉 的对比估算</caption>
+      <thead><tr><th>项目</th><th class="num">含 1% 高温沥青粉</th><th class="num">取消沥青粉（其余不变）</th><th>对剥落的影响</th></tr></thead>
+      <tbody>
+        <tr><td>总碳</td><td class="num">≈4.8%</td><td class="num">≈4.2%</td><td>碳量小幅下降；<b>真正致命的是下面几项</b></td></tr>
+        <tr><td>石墨占碳素比例</td><td class="num">31%</td><td class="num">36%</td><td>几乎没变，<b>碳网络依旧是点状碳支撑</b></td></tr>
+        <tr><td>骨料—基质界面</td><td class="num">沥青液相填隙、界面被"焊住"</td><td class="num">界面疏松、微孔连通</td><td><b style="color:var(--red)">显著恶化</b>：裂纹优先沿界面扩展</td></tr>
+        <tr><td>显气孔率（估算）</td><td class="num">4%~5%</td><td class="num">6%~8%</td><td>渣与氧的渗透通道增多，脱碳层增厚</td></tr>
+        <tr><td>烘烤期产气量</td><td class="num">≈23 m³/t砖</td><td class="num">≈16 m³/t砖</td><td>产气减少（唯一"好处"），但强度同样下降</td></tr>
+        <tr><td>抗热震（水淬循环）</td><td class="num">相对更好</td><td class="num">下降约 20%~35%</td><td><b style="color:var(--red)">是第 3~5 炉剥落的直接推手</b></td></tr>
+        <tr><td>抗氧化性</td><td class="num">沥青碳填充、氧扩散受阻</td><td class="num">气孔连通、氧易深入</td><td>脱碳层由 10~20 mm 增至 20~40 mm</td></tr>
+      </tbody>
+    </table>
+    <div class="note warnbox">
+      <b>新配方下的判读（重要）：</b>新配方已取消沥青粉，但<b>石墨同时从 1.5% 提到 3%</b>，且新增 B₄C 0.15%，这两项恰好补上了沥青缺失后最要紧的两块——<b>碳网络桥接</b>与<b>抗氧化</b>。因此本表的"取消沥青"损失被大幅对冲，<b>总体上是得大于失</b>。剩下的缺口只有一处：<b>沥青独有的"液相填隙、焊住骨料—基质界面"职能，目前只能靠铝镁合金的尖晶石化膨胀来替代——这就是为什么新配方把铝镁合金从 0.4% 提到 1.0%，方向是对的，但 0.6%~0.8% 已足够，1.0% 会带来析氢副作用。</b>若现场条件允许，最理想的方案是<b>保留 0.5%~0.8% 高温沥青粉 + 石墨 3% + B₄C 0.15% + 铝镁合金 0.6%~0.8%</b>，用"低用量沥青"取其填隙之长而不受其产气之害。
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 单斜氧化锆评估 ===================== -->
+<section>
+  <h2>五、加入 1%~2% 单斜氧化锆微粉：正面作用有限，且有反作用 <em>专项评估</em></h2>
+
+  <div class="card">
+    <h3 style="color:var(--txt);">先给结论</h3>
+    <div class="note warnbox" style="margin-top:0;">
+      <b>不建议在本配方中加入单斜 ZrO₂ 微粉，尤其不建议用 1%~2% 这个"半吊子"用量。</b>它理论上能带来两种正面作用（相变增韧与抗渣），但<b>在本体系（低碳 MgO-C、VOD 真空、1700 ℃）下这两种作用都被严重削弱，同时它自己会引入两条负面机制——真空下的碳热还原（生成 CO + 消耗碳）与 m↔t 相变微裂纹（在低加入量下多数变成裂纹源而非增韧源）。</b>净效果大概率是"不升反降"。若确实需要它带来的抗渣与抗热震收益，正确做法是<b>用预合成镁锆砂（MgO-ZrO₂ 共烧结料）替代部分镁砂</b>，而不是往基质里直接撒单斜 ZrO₂ 微粉（详见本章末尾的替代方案）。
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-top:16px;">
+    <div class="card">
+      <h3 style="color:var(--grn);">理论上确实存在的正面作用（为什么有人会想到加它）</h3>
+      <ul style="color:var(--txt2);font-size:14.3px;padding-left:20px;margin:0;">
+        <li style="margin-bottom:9px;"><b>①相变微裂纹增韧（抗热震）：</b>单斜 ZrO₂ 在升温至约 <b>1170 ℃</b> 转变为四方相（体积收缩约 3%~5%），冷却时逆转变为单斜相（体积膨胀约 3%~5% 并伴约 1%~2% 剪切应变）。若转变不完全，残余的相变应变能在基体内<b>预设微裂纹网络与压应力场</b>，可吸收热震应变能、钝化与偏转裂纹尖端——这正是 ZrO₂ 增韧陶瓷的经典机制。</li>
+        <li style="margin-bottom:9px;"><b>②抗渣（尤其是抗 CaO 侵蚀）：</b>ZrO₂ 能固溶渣中 CaO 形成高黏度、高熔点的 CaZrO₃ 反应层，<b>把渣"冻结"在热面外侧</b>，从而减少渣向砖内的渗透深度，对抑制结构剥落有间接好处。</li>
+        <li style="margin-bottom:9px;"><b>③热膨胀系数较低：</b>单斜 ZrO₂ 线膨胀系数约 7~10×10⁻⁶/℃（MgO 约 13~14×10⁻⁶/℃），加入后可略微拉低坯体整体膨胀系数，理论上降低热应力。</li>
+        <li><b>④降低弹性模量：</b>ZrO₂ 与 MgO 不固溶、界面弱结合，可小幅降低坯体弹性模量，使热应力水平下降。</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3 style="color:var(--red);">在本配方中被打折扣的原因</h3>
+      <ul style="color:var(--txt2);font-size:14.3px;padding-left:20px;margin:0;">
+        <li style="margin-bottom:9px;"><b>①相变增韧的"顺序"不对：</b>相变增韧要求 t→m 转变冷却时<b>被基体约束住</b>，从而在颗粒周围形成压应力。但本体系的服役温度 1650~1750 ℃ <b>远高于 1170 ℃ 的转变点</b>，砖体在服役中始终处于四方相区，"增韧"只发生在停炉冷却阶段；而 VOD 的每一炉恰恰是"升温到 1750 ℃ → 空包急冷"的<b>完整穿越相变区</b>的循环——每一次都在砖内制造一次相变体积跳变。</li>
+        <li style="margin-bottom:9px;"><b>②加入量太低，增韧机制无法成立：</b>ZrO₂ 相变增韧的公认有效体积分数一般为 <b>5%~15%</b>，1%~2% 对应的微裂纹密度与间距都不足以形成连续耗能网络，反而是<b>孤立的、彼此不连通的微裂纹</b>——它们偏转不了主裂纹，只能成为裂纹源。</li>
+        <li style="margin-bottom:9px;"><b>③真空下的碳热还原会造成二次损伤：</b>见下方专项核算，这是最实质的反作用。</li>
+        <li><b>④成本高、杠杆低：</b>单斜 ZrO₂ 微粉价格远高于电熔镁砂与石墨，1%~2% 约增加吨砖成本数百元，换来的却是不确定甚至为负的性能变化——性价比不成立。</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px;">
+    <h3 style="color:var(--txt);">专项核算①：真空 + 1700 ℃ 下，ZrO₂ 会被碳还原并与既有体系争夺碳</h3>
+    <table>
+      <caption>表 6 &nbsp;ZrO₂ 相关碳热还原反应的热力学判读（1700 ℃ = 1973 K，VOD 真空）</caption>
+      <thead><tr><th>反应</th><th class="num">1700 ℃ 反应自由能 ΔG</th><th class="num">平衡 CO 分压</th><th>在 VOD 真空下的实际走向</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>ZrO₂ + 3C → ZrC + 2CO↑</b></td>
+          <td class="num" style="color:var(--yel);">≈ 0 ~ −13 kJ/mol（<b>处于临界</b>）</td>
+          <td class="num">≈ 0.1~0.5 atm（正常气压下几乎不反应）</td>
+          <td><b style="color:var(--red)">真空恰恰是推动方向</b>：P(CO) 降到 10⁻³~10⁻⁴ atm 后反应获得强驱动力，<b>ZrO₂ 会被缓慢但持续地碳化</b></td>
+        </tr>
+        <tr>
+          <td>ZrO₂ + SiO₂ + C → ZrSiO₄ / ZrSi + CO↑</td>
+          <td class="num" style="color:var(--grn);">明显为正（不稳定）</td>
+          <td class="num">—</td>
+          <td>硅酸锆与锆硅化物在本条件下<b>不能稳定存在</b>，不必担心生成锆英石相</td>
+        </tr>
+        <tr>
+          <td>ZrO₂ + MgO → MgZrO₃</td>
+          <td class="num">弱反应</td>
+          <td class="num">—</td>
+          <td>生成镁锆酸盐，可小幅强化基质，属<b>中性偏正面</b></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="note warnbox">
+      <b>这条反作用为什么对本砖特别致命：</b>把 ZrO₂ 与已有的金属硅放在一起比较，可以看出它是<b>"更贵的产气剂 + 更隐蔽的碳消耗剂"</b>：
+      <table style="margin-top:12px;">
+        <thead><tr><th>反应</th><th class="num">每 100 g 反应物的气体产率</th><th class="num">每 100 g 反应物的碳消耗</th><th>体积变化</th></tr></thead>
+        <tbody>
+          <tr><td>SiO₂ + C → SiO↑ + CO↑（现有体系）</td><td class="num">≈ 1.30 mol 气体</td><td class="num">≈ 20 g（0.2 mol）</td><td>固相消失，留下孔洞</td></tr>
+          <tr><td><b>ZrO₂ + 3C → ZrC + 2CO↑（新增 ZrO₂）</b></td><td class="num" style="color:var(--red);"><b>≈ 1.24 mol 气体</b></td><td class="num" style="color:var(--red);"><b>≈ 29 g（0.36 mol）</b></td><td class="num" style="color:var(--red);"><b>−13%（ZrC 密度 6.7 vs ZrO₂ 5.7），且伴随体积收缩</b></td></tr>
+        </tbody>
+      </table>
+      <p style="margin:12px 0 0;">按 1% ZrO₂（10 g/kg 砖）完全碳化估算：<b>消耗碳约 0.29%、释放 CO 约 2.4 L/kg 砖（标准状态）、并在原位留下约 0.2% 体积分数的孔洞与收缩裂纹。</b>——注意这个方向：新配方的核心思路恰恰是"<b>降低产气量（23→12 m³/t）+ 保住碳网络</b>"，而 ZrO₂ 的作用方向与之<b>完全相反</b>：它在砖内额外造气、额外吃碳、还额外留孔。放到 VOD 的真空环境里，这个反应被"抽"着往前走，比在常压钢包上严重得多。</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px;">
+    <h3 style="color:var(--txt);">专项核算②：把 1%~2% ZrO₂ 放进新配方，逐项算账</h3>
+    <table>
+      <caption>表 7 &nbsp;新配方 + 1%~2% 单斜 ZrO₂ 的增益与代价对照</caption>
+      <thead><tr><th>性能项</th><th>1% ZrO₂</th><th>2% ZrO₂</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>整体线膨胀系数</td><td class="num">约 −1%</td><td class="num">约 −2%</td><td>绝对变化仅 0.1~0.3×10⁻⁶/℃，<b>可忽略</b>；要改善抗热震需要的是 30% 量级的提升</td></tr>
+        <tr><td>抗热震（微裂纹增韧）</td><td class="num" style="color:var(--yel);">几乎无正效应</td><td class="num" style="color:var(--yel);">几乎无正效应</td><td>低于增韧所需的 5% 体积分数门槛，孤立微裂纹多为裂纹源</td></tr>
+        <tr><td>抗渣渗透（热面）</td><td class="num" style="color:var(--grn);">小幅改善</td><td class="num" style="color:var(--grn);">有改善</td><td><b>这是 ZrO₂ 真正的强项</b>，但本砖的失效主因是热震与结构剥落，不是渣蚀速率</td></tr>
+        <tr><td>碳含量 / 碳网络</td><td class="num" style="color:var(--red);">−0.29% 碳</td><td class="num" style="color:var(--red);">−0.58% 碳</td><td><b>与"保住碳网络"的核心思路正相反</b></td></tr>
+        <tr><td>内部产气量</td><td class="num" style="color:var(--red);">+约 2.4 L/kg 砖</td><td class="num" style="color:var(--red);">+约 4.8 L/kg 砖</td><td>相当于把辛苦降下来的产气量又抬回去约 20%~40%</td></tr>
+        <tr><td>显气孔率 / 致密度</td><td class="num" style="color:var(--red);">劣化</td><td class="num" style="color:var(--red);">明显劣化</td><td>ZrC 生成伴体积收缩，界面产生孔隙</td></tr>
+        <tr><td>抗热震（综合）</td><td class="num" style="color:var(--red);"><b>净负</b></td><td class="num" style="color:var(--red);"><b>净负</b></td><td>抗渣的小幅收益被产气、吃碳、微裂纹三项代价抵消</td></tr>
+        <tr><td>吨砖成本</td><td class="num">+数百元</td><td class="num">+数百元</td><td>同样的钱用在石墨或 B₄C 上，收益高一个数量级</td></tr>
+      </tbody>
+    </table>
+    <div class="note">
+      <b>一句话对比：</b>把 1% 的钱花在<b>石墨</b>上（1.5% → 3%，石墨占碳素比 31% → 56%），换来的是导热与抗热震的<b>质变</b>；把同样的钱花在 1% 单斜 ZrO₂ 上，换来的是"抗渣略好、产气更多、碳更少、微裂纹更多"的<b>净负交易</b>。
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px;">
+    <h3 style="color:var(--grn);">如果确实想要 ZrO₂ 带来的抗渣与抗热震收益，正确做法是这样</h3>
+    <table>
+      <caption>表 8 &nbsp;ZrO₂ 的引入方式比加入量更重要</caption>
+      <thead><tr><th>方案</th><th class="num">推荐用量</th><th>为什么更好</th><th>评价</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>预合成镁锆砂（MgO-ZrO₂ 共烧结料）替代部分镁砂</b></td>
+          <td class="num">1%~3%（替代等量镁砂）</td>
+          <td>ZrO₂ 以<b>微细析晶形式被包裹在 MgO 晶内或晶界</b>，不与碳直接大面积接触，碳热还原显著减弱；同时保留抗渣与微裂纹耗能的收益；工艺成熟，是国内外镁碳砖/镁铝浇注料中最常用的 ZrO₂ 引入方式</td>
+          <td><span class="pill p-grn">首选</span></td>
+        </tr>
+        <tr>
+          <td>部分稳定 ZrO₂（PSZ，加 2%~4% CaO 或 3% MgO）</td>
+          <td class="num">1%~1.5%</td>
+          <td>把 t→m 相变温度<b>下调并展宽</b>，减少服役温度穿越相变区时的体积跳变幅度；稳定剂本身也不会引入新的产气源</td>
+          <td><span class="pill p-grn">次选</span></td>
+        </tr>
+        <tr>
+          <td>锆英石（ZrSiO₄）微粉</td>
+          <td class="num">1%~3%</td>
+          <td>ZrO₂ 与 SiO₂ 已结合成稳定相，分解温度高，碳热还原倾向低于游离 ZrO₂；分解后可提供 ZrO₂ 与 SiO₂ 双重抗渣组分</td>
+          <td><span class="pill p-blu">可考虑</span></td>
+        </tr>
+        <tr>
+          <td><b>直接在基质中加 1%~2% 单斜 ZrO₂ 微粉</b></td>
+          <td class="num">1%~2%</td>
+          <td>成本最低、操作最简单，但上述三条反作用全部出现，且增韧机制因加入量不足而不成立</td>
+          <td><span class="pill p-red">不推荐</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="note okbox">
+      <b>优先级提醒：</b>ZrO₂ 是"锦上添花"型的添加剂，只有在<b>热震与结构剥落的主因已经被解决</b>之后，它带来的抗渣收益才有意义。当前本砖还有 4 项性价比远高于它的待办事项排在前面——<b>①金属硅由 1% 降到 0.3%~0.5%；②铝镁合金由 1% 降到 0.6%~0.8% 并改双峰粒度；③<b>恢复 0.8%~1.0% 煅烧氧化铝微粉</b>（或改用 1%~3% 预合成镁铝尖晶石细粉，或恢复 0.5%~0.8% 高温沥青粉）——三者择一即可，<b>目的是补上"取消沥青 + 取消氧化铝微粉"造成的界面填隙空缺</b>；④实测并控制钢水增碳。</b>这四项做完后若仍有富余寿命空间，再考虑<b>预合成镁锆砂</b>路线，而不是单斜 ZrO₂ 微粉。
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 工况应力 ===================== -->
+<section>
+  <h2>六、VOD 工况为什么专"克"低碳镁碳砖 <em>Service Conditions</em></h2>
+  <div class="grid g3">
+    <div class="card">
+      <h3>① 强氧化：氧枪 + 高 FeO/MnO 渣</h3>
+      <p style="color:var(--txt2);font-size:14.3px;margin:0;">VOD 吹氧脱碳阶段，渣中 FeO + MnO 可达 20%~40%，同时氧枪射流直接冲刷渣线以上砖面。<b>碳被优先氧化</b>：C + FeO → Fe + CO↑。碳网络一旦断掉，砖体就退化成"低强度 MgO 制品"，失去抗热震与抗渣润湿能力。</p>
+    </div>
+    <div class="card">
+      <h3>② 真空：脱碳 + 气体逸出双重作用</h3>
+      <p style="color:var(--txt2);font-size:14.3px;margin:0;">数十~数百 Pa 下，C 与氧化物反应的平衡被强烈推动（C + SiO₂ → SiO↑ + CO↑），<b>碳被从砖内部"抽走"</b>；同时砖内气孔中的气体、树脂残留挥发分剧烈逸出，形成由内向外的高压气流，<b>在基质中撕出微裂纹</b>。</p>
+    </div>
+    <div class="card">
+      <h3>③ 剧烈热循环：单炉温差 800~1100 ℃</h3>
+      <p style="color:var(--txt2);font-size:14.3px;margin:0;">1650~1750 ℃ 处理 → 出钢 → 空包（表面可降至 800~1000 ℃ 甚至更低）→ 再预热。低碳砖导热系数低（热面 600 ℃ 时约 6~9 W/(m·K)，中高碳砖为 12~18），<b>热面与背面的温差被拉大</b>，热应力随循环累积，是裂纹成核与扩展的主动力。</p>
+    </div>
+    <div class="card">
+      <h3>④ 高碱度高钙渣的渗透</h3>
+      <p style="color:var(--txt2);font-size:14.3px;margin:0;">不锈钢 VOD 渣碱度通常 1.8~3.0，CaO 高。渣沿气孔与碳被氧化留下的通道渗入，与 MgO 反应生成高钙相，<b>在砖内形成一层成分与膨胀行为都不同的变质带</b>——这就是结构剥落的物质基础。</p>
+    </div>
+    <div class="card">
+      <h3>⑤ 超低碳要求压缩了设计空间</h3>
+      <p style="color:var(--txt2);font-size:14.3px;margin:0;">为防止钢水增碳，砖的总碳被压到 3%~5%，<b>等于主动放弃了镁碳砖最核心的优势——碳网络带来的抗热震与抗渣润湿</b>。这是所有超低碳钢包衬的共同难题，必须靠"碳结构设计"而非"碳量"来补偿。</p>
+    </div>
+    <div class="card">
+      <h3>⑥ 间歇作业与急冷急热</h3>
+      <p style="color:var(--txt2);font-size:14.3px;margin:0;">若钢包周转慢、VOD 后有长时间空置或离线冷却，则每炉都是一次"全厚度"急冷。低碳砖抗热震次数本身就有限，<b>周转制度不改，材料再好也撑不住</b>。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 机理 ===================== -->
+<section>
+  <h2>七、剥落机理分解 <em>按主导程度排序</em></h2>
+  <div class="grid g2">
+
+    <div class="mech a">
+      <h3><span class="no">1</span>热震剥落（主导，占失效约 45%~55%）</h3>
+      <p><b>机理：</b>低碳化后砖体导热率下降、弹性模量相对上升，热面在急冷急热时承受的拉应力超过基质结合强度，裂纹沿热面平行方向成核并扩展，多次循环后贯通、掉块。</p>
+      <p><b>本配方的放大因素：</b>石墨仅 1.5%，缺乏鳞片石墨的桥接与导热；炭黑虽提高碳分散度，但为点状碳，<b>不能传递热量、不能耗散应力</b>。</p>
+      <div class="evi"><b>现场辨识：</b>剥落块呈片状、断面较平整且与热面大致平行；剥落面可见明显裂纹网（龟裂）；多在 3~5 炉后突然大面积脱落。</div>
+    </div>
+
+    <div class="mech b">
+      <h3><span class="no">2</span>结构剥落（次主导，占约 25%~35%）</h3>
+      <p><b>机理：</b>热面脱碳 → 渣渗入 → 形成"变质层/致密渣层"。变质层与原始层之间的<b>热膨胀系数与弹性模量不匹配</b>，温度波动时界面产生剪切应力，沿界面剥离，且每剥落一次就暴露新的热面，循环加速。</p>
+      <p><b>本配方的放大因素：</b>1.4% 金属粉体系在真空高温下产生气体，使变质层更疏松多孔，更容易被渣贯穿；96.5 电熔砂杂质偏高，渣蚀反应层更厚。</p>
+      <div class="evi"><b>现场辨识：</b>剥落块背面常带一层灰黑色渣壳或变色层；砖残厚中可见清晰分带（原砖带 / 变质带 / 渣层）。</div>
+    </div>
+
+    <div class="mech c">
+      <h3><span class="no">3</span>碳氧化—脱碳脆化（诱因，贯穿全程）</h3>
+      <p><b>机理：</b>烘烤、待包、VOD 吹氧、真空阶段均存在碳的氧化与气化。脱碳层失去碳结合后强度急剧下降（可降至原砖的 30%~50%），成为剥落的"薄弱面"。</p>
+      <p><b>本配方的放大因素：</b>石墨量低使抗氧化"牺牲碳"储备不足；金属粉总量 1.4% 对抗氧化保护而言偏少，且硅的反应产物与碳竞争。</p>
+      <div class="evi"><b>现场辨识：</b>热面出现 10~40 mm 的疏松、变白/变灰层；用手可捻碎；砖体外观"发白"。</div>
+    </div>
+
+    <div class="mech d">
+      <h3><span class="no">4</span>内部气压与树脂挥发裂纹（工艺性缺陷）</h3>
+      <p><b>机理：</b>树脂 3.5% + 高温沥青粉 1% = 有机结合剂 4.5%，200~600 ℃ 集中释放挥发分。<b>350~550 ℃ 存在"强度真空窗"</b>：沥青已熔融软化、树脂尚未碳化，砖体强度跌至最低而产气速率接近峰值 → 气体在弱基质中膨胀，形成层裂/鼓包；真空条件下金属硅生成 SiO/CO 气体，进一步在基质中形成气孔串与裂纹。</p>
+      <p><b>本配方的放大因素：</b>树脂偏高 + 沥青粉挥发分叠加（产气量比单用树脂高 40%~80%）+ 炭黑高比表面额外吸附树脂 + 1% 金属硅；若沥青为普通/中温牌号，挥发分再增一倍量级；若烘烤峰值温度不足 1300 ℃，沥青碳不能石墨化，微裂纹永久保留。</p>
+      <div class="evi"><b>现场辨识：</b>未使用或仅用 1~2 炉的砖上就能看到<b>平行于热面的层状裂纹</b>；断面有气孔带；敲击有闷声。</div>
+    </div>
+
+    <div class="mech e">
+      <h3><span class="no">5</span>基质强度不足与颗粒级配失衡</h3>
+      <p><b>机理：</b>骨料（约 63%）与细粉（约 25%）合计约 88.6%，细粉级配偏细，结合剂难以完全包覆；炭化后基质收缩大于骨料，骨料—基质界面成为裂纹优先路径。<b>沥青粉正是用来"焊住"这一界面的组分</b>——一旦缺失或未熔融填隙，界面即是剥落的起始面。</p>
+      <p><b>本配方的放大因素：</b>炭黑、氧化铝微粉、金属粉均为微米/纳米级，比表面大，需要更多结合剂，3.5% 树脂在"包覆"与"残碳"之间难以兼顾。</p>
+      <div class="evi"><b>现场辨识：</b>剥落面可见大量裸露骨料颗粒（"砂粒感"），说明裂纹优先沿骨料—基质界面走。</div>
+    </div>
+
+  </div>
+
+  <div class="card" style="margin-top:16px;">
+    <h3 style="color:var(--txt);">失效因果链</h3>
+    <div class="chain">
+      <div class="node">原配方：总碳 4.8%，石墨仅占碳素 31%</div><span class="arw">→</span>
+      <div class="node">碳网络不连续 + 导热下降</div><span class="arw">→</span>
+      <div class="node">抗热震次数不足</div><span class="arw">→</span>
+      <div class="node">有机结合剂 4.5%（树脂+沥青）产气 23 m³/t</div><span class="arw">→</span>
+      <div class="node hot">350~550 ℃ 强度真空窗 → 烘烤层裂</div><span class="arw">→</span>
+      <div class="node">VOD 强氧化 / 真空 / 900 ℃ 级热循环</div><span class="arw">→</span>
+      <div class="node hot">脱碳层 + 变质层形成</div><span class="arw">→</span>
+      <div class="node hot">界面剪切应力 &gt; 基质强度</div><span class="arw">→</span>
+      <div class="node hot">片状剥落（第 3~5 炉）</div>
+      <div class="node" style="border-color:#3fd68a66;color:#b6f0d0;background:#16241c;">新配方：石墨 3% + B₄C + 产气减半 → 切断前四环</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SVG 剖面图 ===================== -->
+<section>
+  <h2>八、砖体剖面示意 <em>温度梯度 · 分层 · 剥落位置</em></h2>
+  <div class="svgshell">
+    <svg viewBox="0 0 900 470" width="900" height="470" role="img" aria-label="钢包工作层砖体剖面示意图">
+      <defs>
+        <linearGradient id="gSteel" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#ffb066"/><stop offset="100%" stop-color="#ff7a2f"/>
+        </linearGradient>
+        <linearGradient id="gSlag" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#6b5a3a"/><stop offset="100%" stop-color="#4a3d28"/>
+        </linearGradient>
+        <linearGradient id="gDecarb" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#8d8d8d"/><stop offset="100%" stop-color="#5f6062"/>
+        </linearGradient>
+        <linearGradient id="gAlter" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#7a6a52"/><stop offset="100%" stop-color="#4b4433"/>
+        </linearGradient>
+        <linearGradient id="gBrick" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#3a465c"/><stop offset="100%" stop-color="#232c3e"/>
+        </linearGradient>
+        <pattern id="hatch" width="9" height="9" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="9" stroke="#ffffff22" stroke-width="3"/>
+        </pattern>
+        <marker id="ar" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+          <path d="M0,0 L10,4 L0,8 Z" fill="#ff8a3d"/>
+        </marker>
+        <marker id="arR" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+          <path d="M0,0 L10,4 L0,8 Z" fill="#ff5a5a"/>
+        </marker>
+      </defs>
+
+      <!-- 钢水区 -->
+      <rect x="40" y="60" width="120" height="330" fill="url(#gSteel)" opacity="0.85" rx="4"/>
+      <text x="100" y="200" fill="#3a1e05" font-size="15" font-weight="700" text-anchor="middle">钢 水</text>
+      <text x="100" y="224" fill="#4a2a08" font-size="13" text-anchor="middle">1650~1750 ℃</text>
+      <text x="100" y="246" fill="#4a2a08" font-size="12.5" text-anchor="middle">超低碳不锈钢</text>
+
+      <!-- 渣线 -->
+      <rect x="160" y="60" width="150" height="72" fill="url(#gSlag)" rx="3"/>
+      <text x="235" y="90" fill="#f0dfae" font-size="13" font-weight="700" text-anchor="middle">VOD 渣（碱度 1.8~3.0）</text>
+      <text x="235" y="112" fill="#e0cfa0" font-size="12" text-anchor="middle">FeO+MnO 20%~40%，强氧化</text>
+
+      <!-- 工作层砖体（分层） -->
+      <rect x="160" y="132" width="150" height="258" fill="url(#gDecarb)" rx="3"/>
+      <rect x="160" y="132" width="150" height="258" fill="url(#hatch)" rx="3"/>
+      <rect x="215" y="132" width="95" height="258" fill="url(#gAlter)"/>
+      <rect x="270" y="132" width="160" height="258" fill="url(#gBrick)"/>
+      <rect x="430" y="132" width="130" height="258" fill="#1b2434"/>
+      <rect x="560" y="132" width="90" height="258" fill="#131a27"/>
+
+      <!-- 分层标注 -->
+      <text x="235" y="404" fill="#c9ccd1" font-size="12.5" text-anchor="middle">① 脱碳层 10~40mm</text>
+      <text x="262" y="424" fill="#cbb894" font-size="12.5" text-anchor="middle">② 渣蚀变质层</text>
+      <text x="350" y="404" fill="#9fb0c9" font-size="12.5" text-anchor="middle">③ 原砖层（残厚）</text>
+      <text x="495" y="404" fill="#7c8ba1" font-size="12.5" text-anchor="middle">永久层</text>
+      <text x="605" y="404" fill="#7c8ba1" font-size="12.5" text-anchor="middle">钢壳</text>
+
+      <!-- 温度曲线 -->
+      <polyline points="170,150 230,240 300,300 420,355 700,392"
+                fill="none" stroke="#ff8a3d" stroke-width="3" stroke-dasharray="7 5"/>
+      <text x="180" y="140" fill="#ffb066" font-size="12.5">1750 ℃</text>
+      <text x="560" y="380" fill="#7c8ba1" font-size="12.5">150~300 ℃</text>
+      <text x="628" y="428" fill="#ff8a3d" font-size="12.5">温度梯度曲线</text>
+
+      <!-- 裂纹 -->
+      <path d="M170,200 L205,214 L188,238 L220,250" fill="none" stroke="#ff5a5a" stroke-width="2.6"/>
+      <path d="M170,300 L210,290 L196,318 L232,330" fill="none" stroke="#ff5a5a" stroke-width="2.6"/>
+      <path d="M212,170 L246,182 L236,206" fill="none" stroke="#ff5a5a" stroke-width="2.2"/>
+      <!-- 界面剥离裂纹 -->
+      <path d="M266,150 L268,250 L266,340 L269,392" fill="none" stroke="#ffcc4d" stroke-width="3"/>
+      <text x="278" y="176" fill="#ffcc4d" font-size="12.5">界面剪切裂纹</text>
+
+      <!-- 剥落块 -->
+      <path d="M170,344 L206,338 L214,368 L192,384 L168,376 Z" fill="#ff5a5a" opacity="0.35" stroke="#ff5a5a" stroke-width="2"/>
+      <text x="120" y="440" fill="#ff8a8a" font-size="12.5">片状剥落块（与热面大致平行）</text>
+      <path d="M166,364 L128,428" stroke="#ff5a5a" stroke-width="1.6" marker-end="url(#arR)" fill="none"/>
+
+      <!-- 受力箭头 -->
+      <path d="M150,236 L188,236" stroke="#ff8a3d" stroke-width="2.4" marker-end="url(#ar)"/>
+      <text x="60" y="470" fill="#ffb066" font-size="12.5">热应力 / 渣冲刷方向</text>
+
+      <!-- 说明 -->
+      <text x="680" y="86" fill="#e8edf5" font-size="14" font-weight="700" text-anchor="middle">剥落三要素</text>
+      <text x="640" y="116" fill="#a9b6c9" font-size="12.5">1. 热面急冷急热 → 拉应力</text>
+      <text x="640" y="140" fill="#a9b6c9" font-size="12.5">2. 变质层与本体物性不匹配</text>
+      <text x="640" y="164" fill="#a9b6c9" font-size="12.5">3. 界面强度 &lt; 剪切应力</text>
+      <text x="640" y="196" fill="#ff8a3d" font-size="12.5">→ 平行热面剥离、掉块</text>
+    </svg>
+  </div>
+  <div class="legend">
+    <span><i style="background:#8d8d8d"></i>脱碳层（疏松、强度低）</span>
+    <span><i style="background:#7a6a52"></i>渣蚀变质层</span>
+    <span><i style="background:#3a465c"></i>原砖层</span>
+    <span><i style="background:#ffcc4d"></i>界面剪切裂纹</span>
+    <span><i style="background:#ff5a5a"></i>剥落块 / 裂纹</span>
+  </div>
+</section>
+
+<!-- ===================== 改进方案 ===================== -->
+<section>
+  <h2>九、改进方案 <em>先止血、再治本、后升级</em></h2>
+  <div class="grid g2">
+
+    <div class="step">
+      <div class="kicker">第一阶段 · 立即（1~2 周内可执行）<span style="color:var(--grn);">— 已按新配方修订</span></div>
+      <h3>配方与烘烤"止血"调整</h3>
+      <ul>
+        <li><b>石墨 3.0%：<span style="color:var(--grn)">保持不动</span></b>（这是新配方最关键的正确调整，占碳素比已达 56%）。若要进一步拉开余量可试 3.2%~3.5%，但必须同步盯住钢水增碳。</li>
+        <li><b>炭黑 0.6% → 0.6%~0.8%</b>：保持基质填充与碳分散作用，总碳控制在 <b>5.0%~5.2%</b>，不再盲目加碳。</li>
+        <li><b>高温沥青粉：0 → 建议恢复 0.5%~0.8%</b>（若供应商工艺可行）。新配方取消沥青后，400~550 ℃ 的液相填隙与骨料—基质界面"焊接"职能出现空缺，铝镁尖晶石化的填隙效率不如沥青液相直接渗透。<b>低用量沥青可取"填隙之长"而不受"产气之害"</b>（仅增加约 3~4 m³/t 产气量）。若坚持不用沥青，则必须把氧化铝微粉提到 1.5%~2.0% 来补偿。</li>
+        <li><b>金属硅粉 1.0% → 0.3%~0.5%</b>：这是新配方最该改而未改的一项。Si + C → SiC 伴约 −20% 体积收缩，真空下 Si/SiO₂ + C → CO↑ + SiO↑ 继续产气；<b>抗氧化职能已由 B₄C 接替，硅粉可以大胆下调</b>；若下调后仍需高温强度，可用 0.2%~0.3% 的 SiC 微粉替代。</li>
+        <li><b>铝镁合金粉 1.0% → 0.6%~0.8%</b>，且粒度改为 <b>200 目 + 325 目双峰</b>：1.0% 虽增强尖晶石化，但 Al/Mg 与树脂羟基、水分反应放出 H₂，<b>析氢形成的闭合气孔与微裂纹会抵消增强收益</b>；同时须选用<b>低水分（≤1%）、低游离酚</b>树脂、控制混料环境湿度、开袋即用，抑制析氢。</li>
+        <li><b>碳化硼 0.15%：<span style="color:var(--grn)">保持或略增到 0.15%~0.20%</span></b>，这是新配方性价比最高的增量，不建议为省成本取消。注意 B₂O₃ 在真空 + 1700 ℃ 下会挥发，不能指望它单独解决真空碳损失。</li>
+        <li><b>热固树脂 3.5% → 3.8%~4.0%</b>：取消沥青、且石墨/炭黑/微粉比表面增大后，包覆量偏紧（<b>本版思路的重要修正</b>）；须选高残碳（≥50%）牌号以抑制析氢。</li>
+        <li><b>煅烧氧化铝微粉 0 → 恢复 0.8%~1.0%</b>（配 0.3%~0.5% 活性 α-Al₂O₃ 更佳）：<b>本版新增的关键建议。</b>Al₂O₃ 总量由 ≈1.88% 降到 ≈0.94%、尖晶石生成潜力减半，且失去常温预置骨架与微粉填充；恢复 0.8%~1.0% 即可补上缺口，<b>不必到 1.5%~2.0%</b>（以免与铝镁合金 1% 的膨胀叠加过量）。若受成本或工艺限制不恢复，则改用 1%~3% 预合成镁铝尖晶石细粉，或恢复 0.5%~0.8% 高温沥青粉。</li>
+        <li><b>镁砂升级：</b>细粉部分（&lt;0.088 mm）改用 <b>MgO ≥ 97.5% 的高纯电熔镁砂</b>，把杂质总量压到 1.5% 以下，减少低熔点相。</li>
+        <li><b>烘烤曲线按新体系（无沥青 + 树脂 3.5%~4.0% + 铝镁合金）重定：</b>产气量已由 23 降到约 12 m³/t 砖，可适度加速——室温~200 ℃ ≤20 ℃/h → <b>200~400 ℃ ≤15 ℃/h 保温 3~4 h</b> → <b>400~600 ℃ ≤10~12 ℃/h 保温 5~6 h</b> → 600~1000 ℃ ≤25 ℃/h → <b>峰值 1250~1350 ℃ 保温 ≥4 h</b>（让碳网络充分石墨化与尖晶石化）。总烘烤时间 <b>≥36 h</b>（原高挥发分体系需 ≥48 h）。</li>
+      </ul>
+    </div>
+
+    <div class="step">
+      <div class="kicker">第二阶段 · 短期（1 个月内）</div>
+      <h3>工艺与使用制度配套</h3>
+      <ul>
+        <li><b>渣系优化：</b>VOD 渣碱度控制在 <b>2.2~2.8</b>，避免低碱度（&lt;1.8）长期侵蚀；适当提高 Al₂O₃ 含量以降低渣对 MgO 的溶解能力；减少终渣 FeO + MnO 残余。</li>
+        <li><b>氧枪与吹炼制度：</b>氧枪枪位与角度不得直接冲刷包衬热面；控制脱碳末期供氧强度，避免长时间过氧化。</li>
+        <li><b>钢包周转与保温：</b>减少空包时间，VOD 后尽量连续周转；必须停用则加盖保温或离线缓冷，<b>禁止空包自然急冷</b>。</li>
+        <li><b>预热带制度：</b>新包上线前按 800 ℃ → 1100 ℃ 分段预热，避免"一步到温"。</li>
+        <li><b>热修制度：</b>每 3~5 炉检查渣线与热面，出现 ≥10 mm 疏松层时进行喷补/挖补，<b>不等到大面积剥落再修</b>。</li>
+        <li><b>建立砖衬测厚记录：</b>每炉后测量残厚并绘制曲线，用剥落速率而不是"掉块才换"来判定寿命。</li>
+      </ul>
+    </div>
+
+    <div class="step">
+      <div class="kicker">第三阶段 · 中期（2~3 个月）</div>
+      <h3>材料体系升级</h3>
+      <ul>
+        <li><b>引入纳米碳源：</b>用纳米炭黑/碳纳米管/氧化石墨烯部分替代炭黑（0.2%~0.5% 即可），在不增加总碳的前提下强化碳网络连续性——这是低碳镁碳砖领域公认的技术路线。</li>
+        <li><b>沥青粉的升级用法：</b>由"普通高温沥青粉"升级为<b>预碳化沥青粉 / 中间相沥青粉 / 包覆型沥青粉</b>（挥发分 ≤15%、结焦值 ≥75%），在同等用量下把产气量降下来、把残碳与石墨化程度提上去——这是兼顾"抗热震"与"抗层裂"的最佳平衡点。</li>
+        <li><b>碳结构改性：</b>采用<b>碳素前驱体改性树脂</b>（如含硼/含硅改性酚醛）或添加少量硼化物（B₄C、ZrB₂），提高碳结合的高温强度与抗氧化性。</li>
+        <li><b>抗热震增强相（注意引入方式）：</b>优先采用 <b>1%~3% 预合成镁锆砂（MgO-ZrO₂ 共烧结料）替代等量镁砂</b>，而不是直接加单斜 ZrO₂ 微粉——理由见第五章专项评估（真空下 ZrO₂ 的碳热还原会额外产气 2.4 L/kg 砖、额外耗碳约 0.29%，且 1%~2% 的加入量达不到相变增韧所需的体积分数门槛）。若走锆路线，也可用 1%~3% 锆英石微粉或 1%~1.5% 部分稳定 ZrO₂（PSZ）；或引入少量 MgAl₂O₄ 预合成尖晶石细粉。</li>
+        <li><b>防氧化涂层/浸渍：</b>砖的热面浸渍磷酸盐或硼酸盐防氧化液，或在工作面复合一层抗氧化涂层，降低脱碳层厚度。</li>
+        <li><b>结构复合设计：</b>渣线与热面区采用高抗热震low-carbon砖，其他部位用经济型材料；工作层与永久层之间加设隔热/缓冲层，降低界面剪切应力。</li>
+      </ul>
+    </div>
+
+    <div class="step">
+      <div class="kicker">第四阶段 · 长期（若仍需突破）</div>
+      <h3>换材与结构方案</h3>
+      <ul>
+        <li><b>若寿命仍上不到 15 炉：</b>建议评估<b>低碳/Al₂O₃-MgO 浇注料或预制件</b>用于 VOD 包工作层。浇注料无砖缝、整体性好，抗结构剥落能力通常优于砖砌，在超低碳钢包上已有成熟应用。</li>
+        <li><b>镁尖晶石砖路线：</b>参考"高热震低碳镁尖晶石砖"（MgO 90%~95% + Al₂O₃ 4%~10%）的思路，用预合成尖晶石替代部分镁砂，提高抗热震与抗渣性。</li>
+        <li><b>砖型与砌筑：</b>优化砖型与膨胀缝设计，采用<b>阶梯式/锁扣式砌筑</b>，避免直缝贯通；关键区域采用楔形砖降低热面应力集中。</li>
+        <li><b>闭环验证：</b>每改一版配方做"热震循环 + 抗渣 + 真空失重"三项对比试验（水淬/气淬循环 ≥10 次不裂、1500 ℃×3 h 真空失重 ≤2%），再上线试用，避免反复试验性停机。</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="note okbox" style="margin-top:18px;">
+    <b>预期效果（v3 按新配方修订）：</b>新配方本身（石墨 3%、取消沥青、加 B₄C）预计已可把寿命从 4 次提升到 <b>8~12 次</b>；再执行第一阶段的收尾调整（金属硅降到 0.3%~0.5%、铝镁合金降到 0.6%~0.8% 并做双峰粒度、树脂提到 3.8%~4.0%、氧化铝微粉提到 1.5%~2.0%、按新体系重定烘烤曲线并把峰值提到 1250~1350 ℃），可达 <b>12~18 次</b>；叠加第二阶段的渣系与周转制度优化，冲击 <b>18~22 次</b> 是可实现的。第三阶段的纳米碳、预碳化沥青/中间相沥青、锆英石增韧路线主要用于<b>降低炉次波动、把寿命稳定在高位</b>。
+  </div>
+</section>
+
+<!-- ===================== 快速排查清单 ===================== -->
+<section>
+  <h2>十、上线前快速排查清单 <em>可直接打印使用</em></h2>
+  <div class="card">
+    <div class="chk">
+      <label><input type="checkbox"><span>取一块服役 4 炉后剥落的残砖，做<b>断面分带观察 + SEM/EDS</b>：确认脱碳层厚度、变质层成分、裂纹是否沿骨料—基质界面扩展（用于验证机理 1/2/5 的主次）。</span></label>
+      <label><input type="checkbox"><span>若原料中已含 ZrO₂（无论单斜微粉、镁锆砂还是锆英石），<b>务必检测其引入形态与加入量</b>：单斜 ZrO₂ 微粉在 VOD 真空下会发生碳热还原（ZrO₂ + 3C → ZrC + 2CO↑），额外产气并耗碳，建议改为预合成镁锆砂路线。</span></label>
+      <label><input type="checkbox"><span>核查<b>取消沥青后骨料—基质界面是否变松</b>：岩相观察界面处沥青碳残留与尖晶石生成带，判断"铝镁合金 1% 是否真的接替了沥青的填隙职能"。</span></label>
+      <label><input type="checkbox"><span><b>【最高优先级】实测钢水增碳量：</b>新配方总碳升到 5.2%、石墨 3%，须连续跟踪 5~10 炉 VOD 后钢水碳含量——这是决定"能不能继续加石墨"的唯一依据。若合格，石墨可放胆用足；若超标，先砍树脂与炭黑，<b>绝不先砍石墨</b>。</span></label>
+      <label><input type="checkbox"><span>检测<b>用后砖残碳量</b>（对比新配方原砖 5.2%）：若热面残碳 &lt;1%，说明碳氧化/气化仍是主控，需加强抗氧化（B₄C 提量或加防氧化涂层）。</span></label>
+      <label><input type="checkbox"><span>核查<b>B₄C 的粒度与纯度</b>（建议 ≤325 目、B₄C ≥90%）：粒度过粗则反应滞后、保护膜不均；并确认其在真空高温下的实际留存率。</span></label>
+      <label><input type="checkbox"><span>检测<b>铝镁合金粉的活性与析氢量</b>：取新料做"与水反应产气量"试验，产气量高说明钝化不足或已吸湿，应收紧储存与混料湿度控制。</span></label>
+      <label><input type="checkbox"><span>比对<b>新配方原砖的体积密度与显气孔率</b>：目标体积密度 ≥3.00 g/cm³、显气孔率 ≤5%。石墨增至 3% 后密度会略降，若测值明显偏低说明成型压力或级配需调整。</span></label>
+      <label><input type="checkbox"><span>取一块服役后剥落的残砖，做<b>断面分带观察 + SEM/EDS</b>：确认脱碳层厚度、变质层成分、裂纹是否沿骨料—基质界面扩展（验证"取消沥青后界面是否变松"）。</span></label>
+      <label><input type="checkbox"><span>核算<b>烘烤曲线实测数据</b>（各区间升温速率、200~600 ℃ 保温时长、峰值温度）：重点确认 350~550 ℃ 是否慢速通过、峰值是否达到 1250 ℃ 以上。</span></label>
+      <label><input type="checkbox"><span>做<b>热重—差热（TG-DSC）分析</b>：测出本配方实际失重曲线，用数据反推最佳烘烤曲线，而不是沿用老配方曲线。</span></label>
+      <label><input type="checkbox"><span>检测<b>成型体体积密度与显气孔率</b>：目标体积密度 ≥3.05 g/cm³、显气孔率 ≤5%，若偏低则先解决级配与树脂用量。</span></label>
+      <label><input type="checkbox"><span>做<b>抗热震对比试验</b>：1100 ℃ 水淬循环，记录出现裂纹的循环次数（原配方 vs 新配方）。</span></label>
+      <label><input type="checkbox"><span>做<b>真空高温失重试验</b>（1500 ℃、真空、3 h），评估金属硅、树脂与沥青的产气量。</span></label>
+      <label><input type="checkbox"><span>调取<b>VOD 渣成分与碱度记录</b>（近 10 炉），确认 FeO + MnO 与碱度是否长期偏离控制区间。</span></label>
+      <label><input type="checkbox"><span>核查<b>氧枪枪位与角度记录</b>，确认射流是否直接冲刷包衬热面。</span></label>
+      <label><input type="checkbox"><span>统计<b>钢包周转时间与空包时长</b>，评估急冷急热的严重程度。</span></label>
+      <label><input type="checkbox"><span>确认<b>镁砂、石墨与沥青的进厂检验数据</b>（MgO 96.5% 的实际杂质含量、石墨固定碳与粒度、沥青五项指标），排除原料波动因素。</span></label>
+      <label><input type="checkbox"><span>核查<b>钢水增碳数据</b>：若总碳 4.8% 下钢水碳仍合格，说明"碳量不是约束、碳的形态才是"，切勿再盲目降碳。</span></label>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p><b>说明：</b>本报告为<b>第 5 版</b>，同时列出原配方与新配方两套配料与 VOD 精炼工况进行反算与机理推断。<b>原配方：</b>96.5 电熔镁砂 ≈88.6%、石墨 1.5%、炭黑 1.5%、高温沥青粉 1%、煅烧氧化铝微粉 1%、铝镁合金粉 200 目 0.4%、金属硅粉 320 目 1%、热固树脂 3.5%。<b>新配方：</b>96.5 电熔镁砂 ≈89.45%、石墨 3%、炭黑 0.6%、铝镁合金粉 200 目 1%、金属硅粉 320 目 1%、碳化硼 0.15%、热固树脂 3.5%——<b>已取消高温沥青粉与煅烧氧化铝微粉</b>。</p>
+  <p><b>估算依据：</b>碳含量按"石墨固定碳 97%、炭黑 99%、高温沥青结焦值 70%、树脂残碳率 48%、B₄C 含碳 21.7%（化合物碳，不计入游离碳）"计算——原配方总碳 ≈4.8%（石墨占碳素 31%），新配方 ≈5.2%（石墨占碳素 56%）。产气量按树脂有效挥发 35%、高温沥青挥发 25% 估算——原配方 ≈23 m³/t砖，新配方 ≈12 m³/t砖（标准状态）。体积密度按各组分常规真密度加权——原配方 ≈3.02 g/cm³，新配方 ≈3.00 g/cm³（铝镁尖晶石化膨胀可部分补偿）。以上均为估算值，实际应以进厂检验、TG-DSC 曲线与用后残砖分析数据为准；改进建议中的具体数值为工程经验区间，建议先做小样对比试验再批量上线。</p>
+  <p><b>版本沿革：</b>第 1 版按"石墨 1.5% + 炭黑 1.5% + 树脂 3.5%"（总碳 4.2%）分析，结论指向"碳不足 + 碳形态失衡"；第 2 版补入原配方中的 1% 高温沥青粉，总碳修正为 ≈4.8%，结论转向"碳的形态与结合剂气体负荷"；第 3 版新增新配方对照分析——新配方把石墨占比由 31% 提到 56%、产气量由 23 降到 12 m³/t砖、并引入 B₄C 抗氧化，预计寿命由 4 炉提升至 8~12 炉，同时指出金属硅未下调、铝镁合金析氢、取消沥青后界面填隙职能缺失、总碳触及上限四项待改进点；<b>第 4 版新增单斜 ZrO₂ 加入评估——结论为不推荐，核心理由是真空条件下 ZrO₂ + 3C → ZrC + 2CO↑ 被热力学推动（每 1% ZrO₂ 额外产气约 2.4 L/kg 砖、额外耗碳约 0.29%、留下约 0.2% 孔洞），而相变增韧在 1%~2% 的加入量下无法成立；同时给出预合成镁锆砂、部分稳定 ZrO₂、锆英石三条替代路线。</b></p>
+  <p><b>ZrO₂ 相关数据的估算依据：</b>碳热还原按 ΔG°(ZrO₂+3C→ZrC+2CO) 在 1973 K 约为 0 ~ −13 kJ/mol、对应平衡 P(CO) 约 0.1~0.5 atm 判读（即常压下几乎不反应、真空下被显著推动）；气体产率与耗碳量按 1% ZrO₂（10 g/kg 砖）完全碳化化学计量估算；密度取值 ZrO₂ 5.7 g/cm³、ZrC 6.7 g/cm³。上述热力学数据为文献典型值量级，实际应以热力学软件核算与高温真空失重试验验证为准。</p>
+  <p>参考方向：VOD 精炼炉用低碳镁碳砖损毁机理、低碳镁碳砖碳结构强化与高热震镁尖晶石砖相关研究（如 <a href="https://d.wanfangdata.com.cn/thesis/Y3823996" style="color:#4da3ff">VOD 精炼炉用低碳镁炭砖的制备及其损毁机理研究</a>、<a href="http://www.nhcl.cn/CN/article/downloadArticleFile.do?attachType=PDF&amp;id=4504" style="color:#4da3ff">含碳耐火材料低碳化及性能强化研究进展</a>、<a href="https://www.chinamet.cn/gtyjxbywb/cn/article/pdf/preview/10.1007/s42243-021-00731-x.pdf" style="color:#4da3ff">精炼钢包工作层耐火材料损毁机理研究</a>）。</p>
+  <p style="margin-top:10px;">生成时间：本机自动生成 · 文件位置：桌面\耐火材料分析\</p>
+</footer>
+
+</div>
+<script>
+(function () {
+  var tables = document.querySelectorAll('table');
+  for (var i = 0; i < tables.length; i++) {
+    var t = tables[i];
+    if (t.parentNode && t.parentNode.className === 'tblwrap') continue;
+    var d = document.createElement('div');
+    d.className = 'tblwrap';
+    t.parentNode.insertBefore(d, t);
+    d.appendChild(t);
+  }
+})();
+</script>
+</body>
+</html>
